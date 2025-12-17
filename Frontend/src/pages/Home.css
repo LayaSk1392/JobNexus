@@ -1,0 +1,111 @@
+/* Home.css updates */
+
+/* Header adjustments */
+header {
+  text-align: center;
+  padding: 2rem 2rem 3rem;
+  background: black;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+header > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  position: relative;
+}
+
+/* Adjust header text alignment */
+header > div > div {
+  text-align: left;
+  flex: 1;
+}
+
+header h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  letter-spacing: -1px;
+  color: #bae6fd;
+}
+
+header p {
+  font-size: 1.2rem;
+  color: #cbd5e1;
+  max-width: 600px;
+  margin: 0;
+}
+
+/* Profile icon positioning */
+.profile-icon-top-right {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+/* Remove old nav styles */
+nav {
+  display: none; /* Hide the navigation bar completely */
+}
+
+/* Adjust container spacing since nav is removed */
+.container {
+  margin: 2rem auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  header {
+    padding: 1.5rem 1rem 2.5rem;
+  }
+  
+  header > div {
+    flex-direction: column;
+    text-align: center;
+    padding: 0 1rem;
+  }
+  
+  header > div > div {
+    text-align: center;
+  }
+  
+  header h1 {
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  header p {
+    font-size: 1rem;
+  }
+  
+  .profile-icon-top-right {
+    position: static;
+    margin-top: 1rem;
+    order: -1;
+    align-self: flex-end;
+  }
+  
+  .card-row {
+    gap: 1.5rem;
+  }
+  
+  .card {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  header h1 {
+    font-size: 1.8rem;
+  }
+  
+  .card {
+    padding: 1.25rem;
+  }
+}
