@@ -14,7 +14,11 @@ const ResumeBuilder = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [isTailoring, setIsTailoring] = useState(false);
   const [error, setError] = useState("");
+  const [tailorSummary, setTailorSummary] = useState("");
+  const [jobId, setJobId] = useState("");
+  const [jobDescription, setJobDescription] = useState("");
   const [resumeData, setResumeData] = useState({
     personalInfo: {
       firstName: "",
@@ -146,6 +150,75 @@ const ResumeBuilder = () => {
     }
   };
 
+  const handleTailorResume = async () => {
+    setError("");
+    setTailorSummary("");
+
+    const trimmedJobId = jobId.trim();
+    const trimmedJobDescription = jobDescription.trim();
+
+    if (!trimmedJobId && !trimmedJobDescription) {
+      setError("Please enter a job ID or paste a job description to tailor your resume.");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    setIsTailoring(true);
+
+    try {
+      const response = await fetch("http://localhost:8000/api/tailor-resume", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          resume_data: resumeData,
+          job_id: trimmedJobId || null,
+          job_description: trimmedJobDescription || null,
+        }),
+      });
+
+      let data = null;
+      const contentType = response.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        data = { success: false, error: text };
+      }
+
+      if (!response.ok) {
+        const errorMessage = data?.error || data?.message || `Server error: ${response.status} ${response.statusText}`;
+        throw new Error(errorMessage);
+      }
+
+      if (!data.success || !data.resume_data) {
+        throw new Error(data.message || "Failed to tailor resume");
+      }
+
+      setResumeData((prev) => ({
+        ...prev,
+        ...data.resume_data,
+        selectedTemplate: prev.selectedTemplate,
+        settings: prev.settings
+      }));
+
+      if (data.changes_summary) {
+        setTailorSummary(data.changes_summary);
+      } else {
+        setTailorSummary("Resume tailored successfully.");
+      }
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (err) {
+      console.error("Tailor resume error:", err);
+      setError(err.message || "Failed to tailor resume. Please try again.");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } finally {
+      setIsTailoring(false);
+    }
+  };
+
   const CurrentStepComponent = steps[currentStep - 1].component;
 
   return (
@@ -178,6 +251,54 @@ const ResumeBuilder = () => {
             </div>
           </div>
         )}
+
+        {/* Tailor Summary */}
+        {tailorSummary && (
+          <div className="success-alert">
+            <div>
+              <strong>Tailoring Complete:</strong> {tailorSummary}
+            </div>
+          </div>
+        )}
+
+        {/* Tailor Resume */}
+        <div className="tailor-panel">
+          <div className="tailor-header">
+            <div>
+              <h2>Tailor Your Resume</h2>
+              <p>Use a job ID, paste a job description, or both to tailor your resume with Gemini.</p>
+            </div>
+            <button
+              onClick={handleTailorResume}
+              disabled={isTailoring}
+              className="nav-button primary"
+            >
+              {isTailoring ? "Tailoring..." : "Tailor with Gemini"}
+            </button>
+          </div>
+          <div className="tailor-body">
+            <div className="tailor-field">
+              <label>Job ID (Optional)</label>
+              <input
+                type="text"
+                value={jobId}
+                onChange={(e) => setJobId(e.target.value)}
+                placeholder="e.g., 123"
+              />
+              <small>We will fetch the job description from your database.</small>
+            </div>
+            <div className="tailor-field">
+              <label>Job Description (Optional)</label>
+              <textarea
+                value={jobDescription}
+                onChange={(e) => setJobDescription(e.target.value)}
+                placeholder="Paste the job description here..."
+                rows={6}
+              />
+              <small>If you provide both, we will combine them for better tailoring.</small>
+            </div>
+          </div>
+        </div>
 
         {/* Progress Bar */}
         <div className="progress-bar">
@@ -262,6 +383,88 @@ const ResumeBuilder = () => {
           align-items: center;
           gap: 12px;
           color: #991b1b;
+        }
+
+        .success-alert {
+          background: #dcfce7;
+          border: 1px solid #86efac;
+          border-left: 4px solid #16a34a;
+          border-radius: 8px;
+          padding: 1rem;
+          margin-bottom: 2rem;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          color: #166534;
+        }
+
+        .tailor-panel {
+          background: white;
+          border-radius: 12px;
+          padding: 1.5rem;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+          margin-bottom: 2rem;
+          border: 1px solid #e5e7eb;
+        }
+
+        .tailor-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 1rem;
+          margin-bottom: 1.5rem;
+        }
+
+        .tailor-header h2 {
+          margin: 0 0 0.25rem 0;
+          color: #1f2937;
+          font-size: 1.25rem;
+        }
+
+        .tailor-header p {
+          margin: 0;
+          color: #6b7280;
+          font-size: 0.9rem;
+        }
+
+        .tailor-body {
+          display: grid;
+          grid-template-columns: 1fr 2fr;
+          gap: 1.5rem;
+        }
+
+        .tailor-field label {
+          display: block;
+          font-weight: 600;
+          color: #374151;
+          margin-bottom: 0.5rem;
+        }
+
+        .tailor-field input,
+        .tailor-field textarea {
+          width: 100%;
+          padding: 10px 12px;
+          border: 1px solid #d1d5db;
+          border-radius: 8px;
+          font-size: 0.95rem;
+        }
+
+        .tailor-field small {
+          display: block;
+          margin-top: 0.5rem;
+          color: #9ca3af;
+          font-size: 0.8rem;
+        }
+
+        @media (max-width: 768px) {
+          .tailor-header {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+
+          .tailor-body {
+            grid-template-columns: 1fr;
+          }
         }
         
         .progress-bar {

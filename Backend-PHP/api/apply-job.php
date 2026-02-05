@@ -76,6 +76,26 @@ try {
     );
 
     $stmt->execute([$job_id, $candidate_id, $filename]);
+    $applicationId = $db->lastInsertId();
+
+    /* ---------- NOTIFY RECRUITER ---------- */
+    $jobStmt = $db->prepare("SELECT title, recruiter_id FROM jobs WHERE id = ?");
+    $jobStmt->execute([$job_id]);
+    $job = $jobStmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($job && !empty($job['recruiter_id'])) {
+        $message = "New application for " . ($job['title'] ?? 'your job') . ".";
+        $notifyStmt = $db->prepare(
+            "INSERT INTO notifications (user_id, application_id, job_id, status, message, is_read, created_at)
+             VALUES (?, ?, ?, 'applied', ?, 0, NOW())"
+        );
+        $notifyStmt->execute([
+            $job['recruiter_id'],
+            $applicationId,
+            $job_id,
+            $message
+        ]);
+    }
 
     echo json_encode([
         "success" => true,

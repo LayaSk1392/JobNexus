@@ -23,9 +23,10 @@ try:
         raise ValueError("GOOGLE_API_KEY not found in .env file")
     genai.configure(api_key=api_key)
     
-    model = genai.GenerativeModel('gemini-2.5-flash') 
+    model_name = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+    model = genai.GenerativeModel(model_name)
     
-    log.info("--- Gemini API configured successfully with model 'gemini-1.0-pro' ---")
+    log.info(f"--- Gemini API configured successfully with model '{model_name}' ---")
 except Exception as e:
     log.error(f"Error configuring Gemini API: {e}")
     model = None
@@ -33,7 +34,7 @@ except Exception as e:
 # ... rest of your code remains the same ...
 
 
-MAX_TEXT_LENGTH = 10000 
+MAX_TEXT_LENGTH = 10000
 
 def extract_text_from_pdf(pdf_file):
     """Extracts text from an uploaded PDF file."""
@@ -50,6 +51,8 @@ def extract_text_from_pdf(pdf_file):
     except Exception as e:
         log.error(f"Error extracting text from PDF: {e}")
         return ""
+
+
 
 
 def generate_questions(resume_text, jd_text):
@@ -198,6 +201,7 @@ def evaluate():
 
     feedback = evaluate_answer(resume_text, jd_text, question, answer)
     return jsonify({'feedback': feedback})
+
 
 if __name__ == '__main__':
     if not model:

@@ -72,6 +72,33 @@ try {
     $updateStmt = $db->prepare($updateQuery);
     $updateStmt->execute([$status, $application_id]);
 
+    // Fetch candidate + job details for notification
+    $detailsQuery = "
+        SELECT a.candidate_id, a.job_id, j.title AS job_title
+        FROM applications a
+        JOIN jobs j ON a.job_id = j.id
+        WHERE a.id = ?
+    ";
+    $detailsStmt = $db->prepare($detailsQuery);
+    $detailsStmt->execute([$application_id]);
+    $details = $detailsStmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($details) {
+        $message = "Your application for " . ($details['job_title'] ?? 'a job') . " has been " . $status . ".";
+        $insertQuery = "
+            INSERT INTO notifications (user_id, application_id, job_id, status, message, is_read, created_at)
+            VALUES (?, ?, ?, ?, ?, 0, NOW())
+        ";
+        $insertStmt = $db->prepare($insertQuery);
+        $insertStmt->execute([
+            $details['candidate_id'],
+            $application_id,
+            $details['job_id'],
+            $status,
+            $message
+        ]);
+    }
+
     echo json_encode([
         "success" => true,
         "message" => "Application status updated successfully"

@@ -22,6 +22,9 @@ export default function Candidates() {
   const [selectedMatchResult, setSelectedMatchResult] = useState(null);
   const [showSkillGapModal, setShowSkillGapModal] = useState(false);
   const [selectedJobForSkillGap, setSelectedJobForSkillGap] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+  const [notificationsLoading, setNotificationsLoading] = useState(false);
+  const [notificationsError, setNotificationsError] = useState("");
 
   const user = JSON.parse(localStorage.getItem("user"));
 
@@ -72,6 +75,47 @@ export default function Candidates() {
     }
   }, [user?.id]);
 
+  const fetchNotifications = useCallback(async () => {
+    if (!user?.id) return;
+    setNotificationsLoading(true);
+    setNotificationsError("");
+    try {
+      const response = await fetch(
+        `http://localhost/JobNexus/Backend-PHP/api/get-notifications.php?user_id=${user.id}&limit=50`
+      );
+      const data = await response.json();
+      if (data.success) {
+        setNotifications(data.notifications || []);
+      } else {
+        setNotificationsError(data.message || "Failed to load notifications");
+      }
+    } catch (err) {
+      console.error(err);
+      setNotificationsError("Failed to load notifications");
+    } finally {
+      setNotificationsLoading(false);
+    }
+  }, [user?.id]);
+
+  const markNotificationRead = async (notificationId) => {
+    if (!user?.id) return;
+    try {
+      await fetch("http://localhost/JobNexus/Backend-PHP/api/mark-notification-read.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          notification_id: notificationId,
+          user_id: user.id
+        })
+      });
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === notificationId ? { ...n, is_read: 1 } : n))
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const fetchJobs = useCallback(async () => {
     try {
       const response = await fetch("http://localhost/JobNexus/Backend-PHP/api/get-jobs.php");
@@ -99,8 +143,9 @@ export default function Candidates() {
       fetchUserResumes();
       fetchAppliedJobs();
       fetchBuilderResumes();
+      fetchNotifications();
     }
-  }, [user?.id, fetchUserResumes, fetchAppliedJobs, fetchBuilderResumes]);
+  }, [user?.id, fetchUserResumes, fetchAppliedJobs, fetchBuilderResumes, fetchNotifications]);
 
   // Open Upload Modal
   const openUploadModal = (job) => {
@@ -279,6 +324,14 @@ export default function Candidates() {
   const navigateToInterviewPrep = () => {
     navigate("/interview-prep");
   };
+
+  const formatNotificationTime = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleString();
+  };
+
+  const unreadCount = notifications.filter((n) => !n.is_read).length;
 
   return (
     <>
@@ -784,6 +837,89 @@ export default function Candidates() {
             display: "flex",
             flexDirection: "column"
           }}>
+            <div style={{ marginBottom: "20px" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <h2 style={{ 
+                  fontSize: "18px", 
+                  fontWeight: "600", 
+                  color: "#1f2937",
+                  margin: 0
+                }}>
+                  Notifications
+                </h2>
+                <span style={{
+                  backgroundColor: unreadCount > 0 ? "#4f46e5" : "#e5e7eb",
+                  color: unreadCount > 0 ? "white" : "#6b7280",
+                  fontSize: "12px",
+                  fontWeight: "600",
+                  borderRadius: "999px",
+                  padding: "4px 10px"
+                }}>
+                  {unreadCount} unread
+                </span>
+              </div>
+
+              <div style={{
+                marginTop: "12px",
+                maxHeight: "200px",
+                overflowY: "auto",
+                display: "flex",
+                flexDirection: "column",
+                gap: "10px",
+                paddingRight: "6px"
+              }}>
+                {notificationsLoading && (
+                  <div style={{ color: "#6b7280", fontSize: "14px" }}>
+                    Loading notifications...
+                  </div>
+                )}
+                {!notificationsLoading && notificationsError && (
+                  <div style={{ color: "#b91c1c", fontSize: "14px" }}>
+                    {notificationsError}
+                  </div>
+                )}
+                {!notificationsLoading && !notificationsError && notifications.length === 0 && (
+                  <div style={{ color: "#6b7280", fontSize: "14px" }}>
+                    No notifications yet.
+                  </div>
+                )}
+                {!notificationsLoading && !notificationsError && notifications.map((n) => (
+                  <div
+                    key={n.id}
+                    style={{
+                      border: "1px solid #e5e7eb",
+                      borderRadius: "8px",
+                      padding: "10px",
+                      backgroundColor: n.is_read ? "#f9fafb" : "#eef2ff"
+                    }}
+                  >
+                    <div style={{ fontSize: "14px", color: "#1f2937", fontWeight: 500 }}>
+                      {n.message || `Your application status was updated to ${n.status}.`}
+                    </div>
+                    <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "4px" }}>
+                      {formatNotificationTime(n.created_at)}
+                    </div>
+                    {!n.is_read && (
+                      <button
+                        onClick={() => markNotificationRead(n.id)}
+                        style={{
+                          marginTop: "6px",
+                          fontSize: "12px",
+                          background: "transparent",
+                          border: "none",
+                          color: "#4f46e5",
+                          cursor: "pointer",
+                          padding: 0
+                        }}
+                      >
+                        Mark as read
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <h2 style={{ 
               fontSize: "20px", 
               fontWeight: "500", 
