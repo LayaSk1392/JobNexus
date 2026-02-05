@@ -1,5 +1,6 @@
-// App.js - Corrected version
+// App.js - Fixed version with smart initial routing
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Candidates from "./pages/Candidates";
@@ -13,13 +14,54 @@ import ResumeRanking from "./pages/ResumeRanking";
 import Settings from "./pages/Settings";
 import JobListings from './pages/JobListings';
 import ProtectedRoute from "./components/ProtectedRoute";
+import ResumeBuilder from "./pages/ResumeBuilder";
+import ResumePreview from './pages/ResumePreview';
+
+// Component to handle initial redirect
+function InitialRedirect() {
+  const [redirect, setRedirect] = useState(null);
+
+  useEffect(() => {
+    const loggedIn = localStorage.getItem("loggedIn") === "true";
+    const userRole = localStorage.getItem("userRole");
+
+    if (loggedIn && userRole) {
+      // User is logged in, redirect to their dashboard
+      switch (userRole) {
+        case "candidate":
+          setRedirect("/candidates");
+          break;
+        case "recruiter":
+          setRedirect("/recruiters");
+          break;
+        case "admin":
+          setRedirect("/collegeadmins");
+          break;
+        default:
+          setRedirect("/login");
+      }
+    } else {
+      // User is not logged in, redirect to login
+      setRedirect("/login");
+    }
+  }, []);
+
+  if (redirect) {
+    return <Navigate to={redirect} replace />;
+  }
+
+  return null; // or a loading spinner
+}
 
 function App() {
   return (
     <Router>
       <Routes>
+        {/* Root route - smart redirect */}
+        <Route path="/" element={<InitialRedirect />} />
+        
         {/* Public Routes */}
-        <Route path="/" element={<Home />} />
+        <Route path="/home" element={<Home />} />
         <Route path="/login" element={<Login />} />
         
         {/* Candidate Routes */}
@@ -27,6 +69,8 @@ function App() {
           <Route path="/candidates" element={<Candidates />} />
           <Route path="/match-score" element={<MatchScore />} />
           <Route path="/interview-prep" element={<InterviewPrep />} />
+          <Route path="/resume-builder" element={<ResumeBuilder />} />
+          <Route path="/resume-preview" element={<ResumePreview />} />
         </Route>
         
         {/* Recruiter Routes */}

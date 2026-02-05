@@ -1,15 +1,45 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 export default function InterviewPrep() {
+  const location = useLocation();
+  const { questions, jobId, jobTitle } = location.state || {};
+  
+  // If questions are passed from job, use them directly
+  const [interviewQuestions, setInterviewQuestions] = useState(questions || []);
+  const [jobDetails, setJobDetails] = useState(jobTitle ? { title: jobTitle } : null);
   const [resume, setResume] = useState(null);
   const [jd, setJd] = useState(null);
-  const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [feedback, setFeedback] = useState({});
   const [loading, setLoading] = useState(false);
   const [evaluating, setEvaluating] = useState(false);
-  const [interviewStarted, setInterviewStarted] = useState(false);
+  const [interviewStarted, setInterviewStarted] = useState(!!questions);
+  
+  // If jobId is provided, fetch job details
+  useEffect(() => {
+    if (jobId && !jobDetails) {
+      fetchJobDetails(jobId);
+    }
+    
+    // If we have questions from job, start interview automatically
+    if (questions && questions.length > 0) {
+      setInterviewStarted(true);
+    }
+  }, [jobId, jobDetails, questions]);
+  
+  const fetchJobDetails = async (jobId) => {
+    try {
+      const response = await fetch(`http://localhost:8000/api/job/${jobId}`);
+      const data = await response.json();
+      if (data.success) {
+        setJobDetails(data.job);
+      }
+    } catch (error) {
+      console.error("Error fetching job details:", error);
+    }
+  };
 
   const startInterview = async () => {
     if (!resume || !jd) {
@@ -46,7 +76,7 @@ export default function InterviewPrep() {
         return;
       }
 
-      setQuestions(data.questions);
+      setInterviewQuestions(data.questions);
       setInterviewStarted(true);
       setCurrentQuestionIndex(0);
       setAnswers({});
@@ -67,7 +97,7 @@ export default function InterviewPrep() {
   };
 
   const evaluateAnswer = async () => {
-    const currentQuestion = questions[currentQuestionIndex];
+    const currentQuestion = interviewQuestions[currentQuestionIndex];
     const currentAnswer = answers[currentQuestionIndex];
 
     if (!currentAnswer || currentAnswer.trim() === "") {
@@ -109,7 +139,7 @@ export default function InterviewPrep() {
   };
 
   const goToNextQuestion = () => {
-    if (currentQuestionIndex < questions.length - 1) {
+    if (currentQuestionIndex < interviewQuestions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     }
   };
@@ -121,13 +151,14 @@ export default function InterviewPrep() {
   };
 
   const resetInterview = () => {
-    setQuestions([]);
+    setInterviewQuestions([]);
     setAnswers({});
     setFeedback({});
     setInterviewStarted(false);
     setCurrentQuestionIndex(0);
     setResume(null);
     setJd(null);
+    setJobDetails(null);
   };
 
   const calculateOverallScore = () => {
@@ -143,6 +174,25 @@ export default function InterviewPrep() {
   return (
     <div className="interview-prep-container" style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
       <h2>AI Interview Preparation</h2>
+      
+      {jobDetails && (
+        <div style={{ 
+          backgroundColor: "#f0f9ff", 
+          padding: "15px", 
+          borderRadius: "8px", 
+          marginBottom: "20px",
+          borderLeft: "4px solid #3b82f6"
+        }}>
+          <h3 style={{ margin: 0, color: "#1e40af" }}>Preparing for: {jobDetails.title}</h3>
+          {jobDetails.description && (
+            <p style={{ marginTop: "8px", color: "#374151", fontSize: "0.95rem" }}>
+              {jobDetails.description.length > 200 
+                ? `${jobDetails.description.substring(0, 200)}...` 
+                : jobDetails.description}
+            </p>
+          )}
+        </div>
+      )}
       
       {!interviewStarted ? (
         <div className="upload-section" style={{ marginBottom: "30px", padding: "20px", border: "1px solid #ddd", borderRadius: "8px" }}>
@@ -212,13 +262,13 @@ export default function InterviewPrep() {
           {/* Progress indicator */}
           <div style={{ marginBottom: "20px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px" }}>
-              <span>Question {currentQuestionIndex + 1} of {questions.length}</span>
+              <span>Question {currentQuestionIndex + 1} of {interviewQuestions.length}</span>
               <span>Overall Score: {calculateOverallScore()}/10</span>
             </div>
             <div style={{ height: "8px", backgroundColor: "#e5e7eb", borderRadius: "4px" }}>
               <div 
                 style={{ 
-                  width: `${((currentQuestionIndex + 1) / questions.length) * 100}%`, 
+                  width: `${((currentQuestionIndex + 1) / interviewQuestions.length) * 100}%`, 
                   height: "100%", 
                   backgroundColor: "#4f46e5",
                   borderRadius: "4px",
@@ -233,7 +283,7 @@ export default function InterviewPrep() {
             <h4 style={{ marginBottom: "15px", color: "#374151" }}>
               Question {currentQuestionIndex + 1}:
             </h4>
-            <p style={{ fontSize: "18px", marginBottom: "20px" }}>{questions[currentQuestionIndex]}</p>
+            <p style={{ fontSize: "18px", marginBottom: "20px" }}>{interviewQuestions[currentQuestionIndex]}</p>
 
             {/* Answer Input */}
             <div style={{ marginBottom: "20px" }}>
@@ -292,7 +342,7 @@ export default function InterviewPrep() {
                 Previous Question
               </button>
               
-              {currentQuestionIndex < questions.length - 1 ? (
+              {currentQuestionIndex < interviewQuestions.length - 1 ? (
                 <button
                   onClick={goToNextQuestion}
                   style={{
@@ -370,7 +420,7 @@ export default function InterviewPrep() {
           <div style={{ marginTop: "40px" }}>
             <h4>All Questions</h4>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "10px" }}>
-              {questions.map((question, index) => (
+              {interviewQuestions.map((question, index) => (
                 <div 
                   key={index}
                   onClick={() => setCurrentQuestionIndex(index)}

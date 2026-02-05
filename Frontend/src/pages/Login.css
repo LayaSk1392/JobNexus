@@ -1,7 +1,7 @@
 /* Login.css - Compact Version */
 .login-page-compact {
   min-height: 100vh;
-  background: white;
+  background: #EFECE3;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
   padding: 2rem;
 }
@@ -12,7 +12,7 @@
 }
 
 .back-link {
-  color: #64748b;
+  color: #4A70A9;
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: 500;
@@ -23,7 +23,7 @@
 }
 
 .back-link:hover {
-  color: #4f46e5;
+  color: #8FABD4;
 }
 
 /* Main Container */
@@ -43,18 +43,18 @@
   font-weight: 800;
   margin: 0 0 0.5rem 0;
   letter-spacing: -1px;
-  color: #1e293b;
+  color: #000000;
 }
 
 .logo-gradient {
-  background: black;
+  background: #000000;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
 .tagline-compact {
-  color: #64748b;
+  color: #4A70A9;
   margin: 0;
   font-size: 1rem;
 }
@@ -77,10 +77,10 @@
   align-items: center;
   justify-content: center;
   padding: 1rem 0.5rem;
-  border: 2px solid #e2e8f0;
+  border: 2px solid #8FABD4;
   background: white;
   border-radius: 12px;
-  color: #64748b;
+  color: #4A70A9;
   font-weight: 500;
   font-size: 0.9rem;
   cursor: pointer;
@@ -88,15 +88,15 @@
 }
 
 .role-tab-compact:hover {
-  border-color: #cbd5e1;
+  border-color: #4A70A9;
   transform: translateY(-2px);
 }
 
 .role-tab-compact.active {
-  border-color: #4f46e5;
-  background: #4f46e5;
+  border-color: #4A70A9;
+  background: #4A70A9;
   color: white;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+  box-shadow: 0 4px 12px rgba(74, 112, 169, 0.3);
 }
 
 .role-icon {
@@ -106,12 +106,12 @@
 
 .role-description-compact {
   text-align: center;
-  color: #64748b;
+  color: #4A70A9;
   font-size: 0.9rem;
   padding: 0.75rem;
-  background: #f8fafc;
+  background: white;
   border-radius: 8px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #8FABD4;
 }
 
 /* Form Card */
@@ -119,8 +119,8 @@
   background: white;
   border-radius: 16px;
   padding: 2.5rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  border: 1px solid #8FABD4;
 }
 
 .form-header-compact {
@@ -132,7 +132,7 @@
 
 .form-header-compact h2 {
   margin: 0;
-  color: #1e293b;
+  color: #000000;
   font-size: 1.8rem;
   font-weight: 700;
 }
@@ -140,7 +140,7 @@
 .toggle-form-btn {
   background: none;
   border: none;
-  color: #4f46e5;
+  color: #4A70A9;
   font-weight: 500;
   font-size: 0.9rem;
   cursor: pointer;
@@ -170,28 +170,28 @@
 .form-group-compact input {
   width: 100%;
   padding: 1rem 1.2rem;
-  border: 1.5px solid #e2e8f0;
+  border: 1.5px solid #8FABD4;
   border-radius: 10px;
   font-size: 0.95rem;
   transition: all 0.2s ease;
   box-sizing: border-box;
-  background: #f8fafc;
+  background: #EFECE3;
 }
 
 .form-group-compact input:focus {
   outline: none;
-  border-color: #4f46e5;
+  border-color: #4A70A9;
   background: white;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  box-shadow: 0 0 0 3px rgba(74, 112, 169, 0.1);
 }
 
 .form-group-compact input::placeholder {
-  color: #94a3b8;
+  color: #8FABD4;
 }
 
 .password-hint-compact {
   margin: 0.5rem 0 0 0;
-  color: #94a3b8;
+  color: #8FABD4;
   font-size: 0.8rem;
 }
 
@@ -201,7 +201,7 @@
 }
 
 .forgot-link-compact {
-  color: #4f46e5;
+  color: #4A70A9;
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: 500;
@@ -215,7 +215,7 @@
 .submit-btn-compact {
   width: 100%;
   padding: 1rem;
-  background: indigo;
+  background: #4A70A9;
   color: white;
   border: none;
   border-radius: 10px;
@@ -230,8 +230,9 @@
 }
 
 .submit-btn-compact:hover:not(:disabled) {
+  background: #8FABD4;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.3);
+  box-shadow: 0 6px 20px rgba(74, 112, 169, 0.3);
 }
 
 .submit-btn-compact:disabled {
@@ -258,7 +259,7 @@
   align-items: center;
   text-align: center;
   margin: 1.5rem 0;
-  color: #94a3b8;
+  color: #8FABD4;
   font-size: 0.85rem;
 }
 
@@ -266,7 +267,7 @@
 .divider-compact::after {
   content: "";
   flex: 1;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #8FABD4;
 }
 
 .divider-compact span {
@@ -282,7 +283,7 @@
 
 .social-btn-compact {
   padding: 0.85rem;
-  border: 1.5px solid #e2e8f0;
+  border: 1.5px solid #8FABD4;
   background: white;
   border-radius: 10px;
   font-weight: 500;
@@ -296,33 +297,33 @@
 }
 
 .social-btn-compact:hover {
-  border-color: #cbd5e1;
-  background: #f8fafc;
+  border-color: #4A70A9;
+  background: #EFECE3;
 }
 
 .social-btn-compact.google {
-  color: #374151;
+  color: #000000;
 }
 
 .social-btn-compact.github {
-  color: #374151;
+  color: #000000;
 }
 
 /* Terms */
 .terms-compact {
   text-align: center;
   padding-top: 1.5rem;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid #8FABD4;
 }
 
 .terms-compact p {
   margin: 0;
-  color: #94a3b8;
+  color: #8FABD4;
   font-size: 0.85rem;
 }
 
 .terms-compact a {
-  color: #4f46e5;
+  color: #4A70A9;
   text-decoration: none;
   font-weight: 500;
 }

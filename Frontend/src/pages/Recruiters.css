@@ -1,6 +1,6 @@
 /* Header */
 .dashboard-header {
-  background: linear-gradient(135deg, #1e293b, #334155);
+  background: linear-gradient(135deg, #000000, #4A70A9);
   color: white;
   padding: 2rem;
   text-align: center;
@@ -29,9 +29,9 @@
 
 .tab-btn {
   padding: 0.7rem 2rem;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(239, 236, 227, 0.1);
   color: white;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(239, 236, 227, 0.3);
   border-radius: 8px;
   font-weight: 500;
   cursor: pointer;
@@ -40,16 +40,16 @@
 }
 
 .tab-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(239, 236, 227, 0.2);
+  border-color: rgba(239, 236, 227, 0.5);
   transform: translateY(-2px);
 }
 
 .tab-btn.active {
-  background: white;
-  color: #1e293b;
-  border-color: white;
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+  background: #EFECE3;
+  color: #000000;
+  border-color: #EFECE3;
+  box-shadow: 0 4px 12px rgba(239, 236, 227, 0.3);
 }
 
 /* Main layout */
@@ -83,8 +83,8 @@
 
 .card h2 {
   margin-top: 0;
-  color: #1f2937;
-  border-bottom: 2px solid #e5e7eb;
+  color: #000000;
+  border-bottom: 2px solid #8FABD4;
   padding-bottom: 0.8rem;
   margin-bottom: 1.5rem;
 }
@@ -100,7 +100,7 @@
   margin-top: 0.5rem;
   padding: 0.8rem;
   border-radius: 10px;
-  border: 1px solid #d1d5db;
+  border: 1px solid #8FABD4;
   resize: none;
 }
 
@@ -123,34 +123,35 @@
 }
 
 .btn.primary {
-  background: #4f46e5;
+  background: #4A70A9;
   color: white;
 }
 
 .btn.primary:hover {
-  background: #4338ca;
+  background: #8FABD4;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+  box-shadow: 0 4px 12px rgba(74, 112, 169, 0.3);
 }
 
 .btn.secondary {
-  background: #e0e7ff;
-  color: #3730a3;
+  background: #EFECE3;
+  color: #4A70A9;
 }
 
 .btn.secondary:hover {
-  background: #c7d2fe;
+  background: #8FABD4;
+  color: white;
   transform: translateY(-2px);
 }
 
 .btn.outline {
   background: transparent;
-  border: 1px solid #4f46e5;
-  color: #4f46e5;
+  border: 1px solid #4A70A9;
+  color: #4A70A9;
 }
 
 .btn.outline:hover {
-  background: #4f46e5;
+  background: #4A70A9;
   color: white;
   transform: translateY(-2px);
 }
@@ -170,32 +171,32 @@
 }
 
 .btn-view {
-  background: #10b981;
+  background: #4A70A9;
   color: white;
 }
 
 .btn-view:hover {
-  background: #059669;
+  background: #8FABD4;
   transform: translateY(-2px);
 }
 
 .btn-download {
-  background: #3b82f6;
+  background: #8FABD4;
   color: white;
 }
 
 .btn-download:hover {
-  background: #2563eb;
+  background: #4A70A9;
   transform: translateY(-2px);
 }
 
 /* Application cards */
 .application-card {
-  border: 1px solid #e5e7eb;
+  border: 1px solid #8FABD4;
   padding: 1.2rem;
   margin-bottom: 1rem;
   border-radius: 12px;
-  background: #f9fafb;
+  background: #EFECE3;
   transition: transform 0.2s ease;
 }
 
@@ -215,7 +216,7 @@
 
 .candidate-name {
   font-weight: 600;
-  color: #1f2937;
+  color: #000000;
   font-size: 1.1rem;
 }
 
@@ -229,27 +230,28 @@
 }
 
 .status-pending {
-  background: #fef3c7;
-  color: #92400e;
+  background: #8FABD4;
+  color: white;
 }
 
 .status-reviewed {
-  background: #dbeafe;
-  color: #1e40af;
+  background: #4A70A9;
+  color: white;
 }
 
 .status-shortlisted {
-  background: #d1fae5;
-  color: #065f46;
+  background: #000000;
+  color: #EFECE3;
 }
 
 .status-rejected {
-  background: #fee2e2;
-  color: #991b1b;
+  background: #EFECE3;
+  color: #000000;
+  border: 1px solid #8FABD4;
 }
 
 .application-details {
-  color: #6b7280;
+  color: #4A70A9;
   font-size: 0.9rem;
   margin: 0.5rem 0;
   display: flex;
@@ -260,14 +262,14 @@
 .resume-section {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px dashed #e5e7eb;
+  border-top: 1px dashed #8FABD4;
 }
 
 /* Status selector */
 .status-selector {
   padding: 0.4rem 0.8rem;
   border-radius: 6px;
-  border: 1px solid #d1d5db;
+  border: 1px solid #8FABD4;
   background: white;
   font-size: 0.9rem;
   margin-top: 0.5rem;
@@ -276,8 +278,8 @@
 
 .status-selector:focus {
   outline: none;
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  border-color: #4A70A9;
+  box-shadow: 0 0 0 3px rgba(74, 112, 169, 0.1);
 }
 
 /* Modal */
@@ -319,7 +321,7 @@
 
 .modal-header {
   padding: 1.5rem;
-  background: #1e293b;
+  background: #4A70A9;
   color: white;
   display: flex;
   justify-content: space-between;
@@ -355,7 +357,7 @@
 }
 
 .no-resume {
-  color: #9ca3af;
+  color: #8FABD4;
   font-style: italic;
 }
 
@@ -368,28 +370,28 @@
 }
 
 .feature-box {
-  background: #f8fafc;
+  background: #EFECE3;
   padding: 1.2rem;
   border-radius: 12px;
   text-align: center;
   transition: transform 0.2s ease;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #8FABD4;
 }
 
 .feature-box:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
-  background: #f1f5f9;
+  background: white;
 }
 
 .feature-box h3 {
   margin-bottom: 0.4rem;
-  color: #1e293b;
+  color: #000000;
   font-size: 1.1rem;
 }
 
 .feature-box p {
-  color: #64748b;
+  color: #4A70A9;
   font-size: 0.9rem;
 }
 
@@ -397,15 +399,15 @@
 .dashboard-footer {
   text-align: center;
   padding: 1.5rem;
-  color: #6b7280;
+  color: #4A70A9;
   margin-top: 3rem;
-  border-top: 1px solid #e5e7eb;
-  background: #f9fafb;
+  border-top: 1px solid #8FABD4;
+  background: #EFECE3;
 }
 
 /* Ranking View Styles */
 .ranking-subtitle {
-  color: #64748b;
+  color: #4A70A9;
   margin-bottom: 2rem;
   font-size: 1.1rem;
   text-align: center;
@@ -413,24 +415,24 @@
 
 .ranking-section {
   margin-bottom: 2rem;
-  background: #f8fafc;
+  background: #EFECE3;
   padding: 1.5rem;
   border-radius: 12px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #8FABD4;
 }
 
 .ranking-label {
   display: block;
   font-size: 1.1rem;
   font-weight: 600;
-  color: #1f2937;
+  color: #000000;
   margin-bottom: 0.8rem;
 }
 
 .job-selector {
   width: 100%;
   padding: 1rem;
-  border: 2px solid #e5e7eb;
+  border: 2px solid #8FABD4;
   border-radius: 10px;
   font-size: 1rem;
   background: white;
@@ -441,37 +443,37 @@
 
 .job-selector:focus {
   outline: none;
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  border-color: #4A70A9;
+  box-shadow: 0 0 0 3px rgba(74, 112, 169, 0.1);
 }
 
 .selected-job-info {
-  background: #f0f9ff;
+  background: white;
   padding: 1rem;
   border-radius: 8px;
   margin-top: 1rem;
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid #4A70A9;
 }
 
 .selected-job-info h4 {
   margin: 0 0 0.5rem 0;
-  color: #1f2937;
+  color: #000000;
   font-size: 1.2rem;
 }
 
 .selected-job-info p {
   margin: 0;
-  color: #6b7280;
+  color: #4A70A9;
   font-size: 0.95rem;
 }
 
 .ranking-error {
-  background: #fee2e2;
-  color: #991b1b;
+  background: #EFECE3;
+  color: #000000;
   padding: 1rem;
   border-radius: 8px;
   margin-top: 1rem;
-  border-left: 4px solid #ef4444;
+  border-left: 4px solid #8FABD4;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -483,7 +485,7 @@
 
 .rank-button {
   width: 100%;
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  background: linear-gradient(135deg, #4A70A9, #8FABD4);
   color: white;
   padding: 1.2rem;
   border: none;
@@ -501,7 +503,7 @@
 
 .rank-button:hover:not(:disabled) {
   transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(79, 70, 229, 0.4);
+  box-shadow: 0 10px 25px rgba(74, 112, 169, 0.4);
 }
 
 .rank-button:disabled {
@@ -540,10 +542,10 @@
 }
 
 .rankings-results h3 {
-  color: #1f2937;
+  color: #000000;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 2px solid #e5e7eb;
+  border-bottom: 2px solid #8FABD4;
   font-size: 1.5rem;
 }
 
@@ -555,7 +557,7 @@
 
 .ranking-item {
   background: white;
-  border: 2px solid #e5e7eb;
+  border: 2px solid #8FABD4;
   border-radius: 12px;
   padding: 1.5rem;
   transition: all 0.3s ease;
@@ -567,14 +569,14 @@
 }
 
 .ranking-item.top-ranking {
-  border-color: #f59e0b;
-  background: linear-gradient(135deg, #fffbeb, #fef3c7);
+  border-color: #4A70A9;
+  background: linear-gradient(135deg, #EFECE3, white);
   animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
-  50% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(74, 112, 169, 0.4); }
+  50% { box-shadow: 0 0 0 10px rgba(74, 112, 169, 0); }
 }
 
 .ranking-header {
@@ -588,7 +590,7 @@
 .rank-number {
   width: 45px;
   height: 45px;
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  background: linear-gradient(135deg, #4A70A9, #8FABD4);
   color: white;
   border-radius: 50%;
   display: flex;
@@ -600,7 +602,7 @@
 }
 
 .top-ranking .rank-number {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
+  background: linear-gradient(135deg, #000000, #4A70A9);
 }
 
 .candidate-info {
@@ -610,7 +612,7 @@
 
 .candidate-info h4 {
   margin: 0 0 0.3rem 0;
-  color: #1f2937;
+  color: #000000;
   font-size: 1.2rem;
 }
 
@@ -625,18 +627,19 @@
 }
 
 .score-excellent {
-  background: #10b981;
+  background: #4A70A9;
   color: white;
 }
 
 .score-good {
-  background: #f59e0b;
+  background: #8FABD4;
   color: white;
 }
 
 .score-fair {
-  background: #6b7280;
-  color: white;
+  background: #EFECE3;
+  color: #000000;
+  border: 1px solid #8FABD4;
 }
 
 .score-display {
@@ -647,17 +650,17 @@
 .score-value {
   font-size: 1.8rem;
   font-weight: bold;
-  color: #4f46e5;
+  color: #4A70A9;
   line-height: 1;
 }
 
 .top-ranking .score-value {
-  color: #f59e0b;
+  color: #000000;
 }
 
 .score-label {
   font-size: 0.85rem;
-  color: #6b7280;
+  color: #8FABD4;
   margin-top: 0.2rem;
 }
 
@@ -665,7 +668,7 @@
 .progress-bar {
   width: 100%;
   height: 8px;
-  background: #e5e7eb;
+  background: #EFECE3;
   border-radius: 4px;
   margin: 1rem 0;
   overflow: hidden;
@@ -673,7 +676,7 @@
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #4f46e5, #7c3aed);
+  background: linear-gradient(90deg, #4A70A9, #8FABD4);
   border-radius: 4px;
   transition: width 1s ease-in-out;
   position: relative;
@@ -702,7 +705,7 @@
 }
 
 .top-ranking .progress-fill {
-  background: linear-gradient(90deg, #f59e0b, #d97706);
+  background: linear-gradient(90deg, #000000, #4A70A9);
 }
 
 /* Candidate Details */
@@ -712,7 +715,7 @@
   gap: 1rem;
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid #8FABD4;
 }
 
 .detail-group {
@@ -722,7 +725,7 @@
 }
 
 .detail-group strong {
-  color: #6b7280;
+  color: #4A70A9;
   font-size: 0.9rem;
   font-weight: 600;
 }
@@ -730,7 +733,7 @@
 .resume-link {
   background: none;
   border: none;
-  color: #3b82f6;
+  color: #4A70A9;
   cursor: pointer;
   text-align: left;
   padding: 0.5rem 0;
@@ -743,8 +746,8 @@
 }
 
 .resume-link:hover {
-  color: #1d4ed8;
-  background: #f0f9ff;
+  color: #8FABD4;
+  background: #EFECE3;
   padding: 0.5rem;
   text-decoration: none;
 }
@@ -769,21 +772,21 @@
 }
 
 .stat-card.excellent {
-  background: linear-gradient(135deg, #d1fae5, #a7f3d0);
-  color: #065f46;
-  border: 2px solid #10b981;
+  background: linear-gradient(135deg, #4A70A9, #8FABD4);
+  color: white;
+  border: 2px solid #4A70A9;
 }
 
 .stat-card.good {
-  background: linear-gradient(135deg, #fef3c7, #fde68a);
-  color: #92400e;
-  border: 2px solid #f59e0b;
+  background: linear-gradient(135deg, #8FABD4, #EFECE3);
+  color: #000000;
+  border: 2px solid #8FABD4;
 }
 
 .stat-card.average {
-  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-  color: #1e40af;
-  border: 2px solid #3b82f6;
+  background: linear-gradient(135deg, #EFECE3, white);
+  color: #000000;
+  border: 2px solid #8FABD4;
 }
 
 .stat-title {
@@ -802,10 +805,10 @@
 .no-jobs {
   text-align: center;
   padding: 2rem;
-  color: #6b7280;
-  background: #f9fafb;
+  color: #4A70A9;
+  background: #EFECE3;
   border-radius: 8px;
-  border: 2px dashed #e5e7eb;
+  border: 2px dashed #8FABD4;
   margin: 1rem 0;
 }
 

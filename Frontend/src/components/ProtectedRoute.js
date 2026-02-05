@@ -21,8 +21,8 @@ export default function ProtectedRoute({ allowedRoles }) {
         return <Navigate to="/recruiters" replace />;
       case "admin":
         return <Navigate to="/collegeadmins" replace />;
-      default:
-        return <Navigate to="/" replace />;
+     default:
+      break
     }
   }
 

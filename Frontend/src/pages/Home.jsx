@@ -10,21 +10,17 @@ export default function Home() {
 
   const handleNavigation = (path) => {
     if (loggedIn) {
-      // Check if user has access to the requested path based on their role
       const roleAccessMap = {
         "/candidates": ["candidate"],
         "/recruiters": ["recruiter"],
         "/collegeadmins": ["admin"],
-        "/jobs": ["candidate", "recruiter", "admin"], // All roles can access jobs
+        "/jobs": ["candidate", "recruiter", "admin"],
       };
 
-      // If path has specific role requirements
       if (roleAccessMap[path]) {
         if (!roleAccessMap[path].includes(userRole)) {
-          // User doesn't have access - redirect to their dashboard
           alert(`Access denied. This section is for ${roleAccessMap[path].join('/')} only.`);
           
-          // Redirect to user's appropriate dashboard
           switch (userRole) {
             case "candidate":
               navigate("/candidates");
@@ -42,23 +38,15 @@ export default function Home() {
         }
       }
       
-      // User has access, navigate to path
       navigate(path);
     } else {
-      // Not logged in - navigate to login with intended path
       navigate("/login", { state: { intendedPath: path } });
     }
   };
 
-  const handleDirectNavigation = (path) => {
-    navigate(path);
-  };
-
   const handleRoleBasedNavigation = (role) => {
     if (loggedIn) {
-      // If already logged in, check if user is trying to access their own role
       if (userRole === role) {
-        // Navigate to their dashboard
         switch (role) {
           case "candidate":
             navigate("/candidates");
@@ -71,11 +59,9 @@ export default function Home() {
             break;
         }
       } else {
-        // User is logged in but trying to access different role
         alert(`You are currently logged in as a ${userRole}. Please logout to access ${role} features.`);
       }
     } else {
-      // Not logged in - go to login with selected role
       navigate("/login", { state: { role } });
     }
   };
@@ -96,22 +82,13 @@ export default function Home() {
             <p>Connecting Candidates, Recruiters, and College Admins for Smarter Careers</p>
           </div>
           
-          {/* Profile Icon in top right corner */}
-        
-      {loggedIn && (
-  <div className="profile-icon-wrapper">
-    <ProfileIcon />
-  </div>
-)}
+          {loggedIn && (
+            <div className="profile-icon-wrapper">
+              <ProfileIcon />
+            </div>
+          )}
         </div>
-        
-        {/* Stars */}
-        <span className="star" style={{ left: "10%", top: "30px" }}></span>
-        <span className="star" style={{ left: "80%", top: "60px", background: "#43e97b" }}></span>
-        <span className="star" style={{ left: "50%", top: "20px", background: "#ffae00" }}></span>
       </header>
-
-      {/* No navigation bar - completely removed */}
 
       <main className="container">
         <div className="card-row">
@@ -183,7 +160,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Additional info for logged-in users */}
         {loggedIn && (
           <div className="user-status-card" style={{
             marginTop: "2rem",
@@ -216,7 +192,7 @@ export default function Home() {
               <button 
                 onClick={() => {
                   localStorage.clear();
-                  navigate("/");
+                  navigate("/login");
                   window.location.reload();
                 }}
                 style={{
@@ -234,7 +210,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* For non-logged in users, show login button */}
         {!loggedIn && (
           <div className="login-prompt" style={{
             marginTop: "3rem",
@@ -270,7 +245,7 @@ export default function Home() {
         )}
       </main>
 
-      <footer>&copy; 2025 Job Nexus — Built for careers, powered by you!</footer>
+      <footer>&copy; 2025 Job Nexus – Built for careers, powered by you!</footer>
     </>
   );
 }

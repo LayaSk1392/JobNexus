@@ -37,7 +37,7 @@ try {
         'candidate_id' => $candidate_id
     ]);
 
-    $resumes = $stmt->fetchAll();
+    $resumes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     echo json_encode([
         "success" => true,
@@ -48,6 +48,8 @@ try {
     http_response_code(500);
     echo json_encode([
         "success" => false,
-        "message" => "Failed to fetch resumes"
+        "message" => "Failed to fetch resumes",
+        "error" => $e->getMessage()
     ]);
 }
+?>

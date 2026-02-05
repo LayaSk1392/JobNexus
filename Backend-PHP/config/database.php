@@ -1,46 +1,27 @@
 <?php
-// config/database.php
-
 class Database {
-    private $host = "shinkansen.proxy.rlwy.net";
-    private $port = "58540";
-    private $dbname = "railway";
-    private $username = "root";
-    private $password = "KEISKsZjOPJWhyLUaXHVrwQKjiIrYRut";
+    private $host = "localhost";        // Change from Railway host
+    private $db_name = "job_nexus";      // Your local database name
+    private $username = "root";          // Default XAMPP username
+    private $password = "";              // Default XAMPP password (empty)
     private $conn;
 
     public function getConnection() {
         $this->conn = null;
-        
+
         try {
-            $dsn = "mysql:host=" . $this->host . 
-                   ";port=" . $this->port . 
-                   ";dbname=" . $this->dbname . 
-                   ";charset=utf8mb4";
-            
-            $this->conn = new PDO($dsn, $this->username, $this->password);
+            $this->conn = new PDO(
+                "mysql:host=" . $this->host . ";dbname=" . $this->db_name,
+                $this->username,
+                $this->password
+            );
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-            
         } catch(PDOException $e) {
-            // ✅ DON'T echo here - just throw the exception
-            throw new Exception("Database connection failed: " . $e->getMessage());
+            echo "Connection Error: " . $e->getMessage();
         }
-        
+
         return $this->conn;
     }
 }
-
-// Optional: Remove this global part - it's causing issues
-// try {
-//     $database = new Database();
-//     $pdo = $database->getConnection();
-// } catch (Exception $e) {
-//     http_response_code(500);
-//     echo json_encode([
-//         "success" => false,
-//         "message" => "Database initialization failed"
-//     ]);
-//     exit;
-// }
 ?>

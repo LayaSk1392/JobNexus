@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import ProfileIcon from "./ProfileIcon";
 import "./Recruiters.css";
 
 export default function Recruiters() {
@@ -32,7 +33,7 @@ export default function Recruiters() {
     fetch(`${API_BASE}/get-applicants.php?recruiter_id=${user.id}`)
       .then((res) => res.json())
       .then((data) => {
-        console.log("Applications data:", data); // Debug log
+        console.log("Applications data:", data);
         if (data.success) {
           setApplications(data.applications || []);
           const initialStatuses = {};
@@ -50,7 +51,7 @@ export default function Recruiters() {
     fetch(`${API_BASE}/recruiter-jobs.php?recruiter_id=${user.id}`)
       .then((res) => res.json())
       .then((data) => {
-        console.log("Jobs data:", data); // Debug log
+        console.log("Jobs data:", data);
         if (data.success) {
           setRecruiterJobs(data.jobs || []);
         }
@@ -132,7 +133,6 @@ export default function Recruiters() {
     const user = JSON.parse(localStorage.getItem("user"));
     const url = `${API_BASE}/download-resume.php?application_id=${application.application_id}&recruiter_id=${user.id}`;
     
-    // Open in new tab to trigger download
     window.open(url, "_blank");
   };
 
@@ -146,7 +146,6 @@ export default function Recruiters() {
   const handleStatusChange = async (applicationId, newStatus) => {
     const user = JSON.parse(localStorage.getItem("user"));
     
-    // Update local state immediately for better UX
     setStatusUpdates(prev => ({
       ...prev,
       [applicationId]: newStatus
@@ -166,7 +165,6 @@ export default function Recruiters() {
       const data = await response.json();
       if (!data.success) {
         alert("Failed to update status");
-        // Revert local state if failed
         setStatusUpdates(prev => ({
           ...prev,
           [applicationId]: applications.find(app => app.application_id === applicationId)?.status
@@ -189,7 +187,6 @@ export default function Recruiters() {
     setRankingError("");
     
     try {
-      // Get applications for the selected job
       const jobApplications = applications.filter(app => 
         app.job_id?.toString() === selectedJobForRanking.toString()
       );
@@ -200,7 +197,6 @@ export default function Recruiters() {
         return;
       }
 
-      // Call ranking API
       const response = await fetch(`${API_BASE}/rank-resumes.php`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -268,10 +264,22 @@ export default function Recruiters() {
 
   return (
     <>
-      <header className="dashboard-header">
-        <h1>Recruiter Dashboard</h1>
-        <p>Manage job postings and review candidate applications</p>
-        <div className="dashboard-actions">
+      <header className="dashboard-header" style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '1rem 2rem',
+        background: 'white',
+        borderBottom: '1px solid #e5e7eb',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+      }}>
+        <div style={{ flex: 1 }}>
+          <h1 style={{ margin: 0, fontSize: '1.5rem', color: '#1f2937' }}>Recruiter Dashboard</h1>
+          <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.875rem', color: '#6b7280' }}>
+            Manage job postings and review candidate applications
+          </p>
+        </div>
+        <div className="dashboard-actions" style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <button 
             onClick={() => setShowRanking(false)}
             className={`tab-btn ${!showRanking ? 'active' : ''}`}
@@ -284,11 +292,11 @@ export default function Recruiters() {
           >
             🏆 Rank Candidates
           </button>
+          <ProfileIcon />
         </div>
       </header>
 
       {!showRanking ? (
-        // Original Dashboard View - FIXED: This should show all dashboard content
         <main className="container">
           {/* Left Column: Post Job Form */}
           <section className="card">
@@ -448,13 +456,11 @@ export default function Recruiters() {
           </section>
         </main>
       ) : (
-        // Resume Ranking View
         <main className="container ranking-view">
           <section className="card ranking-card">
             <h2>🏆 Rank Candidates by Match Score</h2>
             <p className="ranking-subtitle">Select a job to view and rank candidate resumes</p>
 
-            {/* Job Selection */}
             <div className="ranking-section">
               <label className="ranking-label">
                 Select Job Posting
@@ -501,7 +507,6 @@ export default function Recruiters() {
                 </>
               )}
 
-              {/* Error Message */}
               {rankingError && (
                 <div className="ranking-error">
                   {rankingError}
@@ -509,7 +514,6 @@ export default function Recruiters() {
               )}
             </div>
 
-            {/* Rank Button */}
             <button
               onClick={handleRankCandidates}
               disabled={rankingLoading || !selectedJobForRanking}
@@ -528,7 +532,6 @@ export default function Recruiters() {
               )}
             </button>
 
-            {/* Rankings Display */}
             {rankings.length > 0 && (
               <div className="rankings-results">
                 <h3>Candidate Rankings</h3>
@@ -556,7 +559,6 @@ export default function Recruiters() {
                           </div>
                         </div>
 
-                        {/* Progress Bar */}
                         <div className="progress-bar">
                           <div 
                             className="progress-fill"
@@ -564,7 +566,6 @@ export default function Recruiters() {
                           ></div>
                         </div>
 
-                        {/* Candidate Details */}
                         <div className="candidate-details">
                           <div className="detail-group">
                             <strong>Resume:</strong>
@@ -589,7 +590,6 @@ export default function Recruiters() {
                   })}
                 </div>
 
-                {/* Summary Statistics */}
                 <div className="summary-stats">
                   <div className="stat-card excellent">
                     <div className="stat-title">Excellent Matches</div>
@@ -618,7 +618,6 @@ export default function Recruiters() {
         </main>
       )}
 
-      {/* Resume Modal */}
       {resumeModalOpen && selectedResume && (
         <div className="modal-overlay">
           <div className="modal-content">

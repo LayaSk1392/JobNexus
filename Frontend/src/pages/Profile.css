@@ -1,7 +1,7 @@
 /* Profile.css */
 .profile-page {
   min-height: 100vh;
-  background: #f8fafc;
+  background: #EFECE3;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
 }
 
@@ -17,8 +17,8 @@
 .profile-loading .spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid #e5e7eb;
-  border-top-color: #4f46e5;
+  border: 3px solid #8FABD4;
+  border-top-color: #4A70A9;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -34,34 +34,35 @@
   align-items: center;
   padding: 1.5rem 2rem;
   background: white;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #8FABD4;
 }
 
 .profile-header h1 {
   margin: 0;
-  color: #1f2937;
+  color: #000000;
   font-size: 1.8rem;
   font-weight: 700;
 }
 
 .back-button {
   padding: 0.5rem 1rem;
-  background: #f3f4f6;
-  border: 1px solid #e5e7eb;
+  background: #EFECE3;
+  border: 1px solid #8FABD4;
   border-radius: 6px;
-  color: #374151;
+  color: #000000;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .back-button:hover {
-  background: #e5e7eb;
+  background: #8FABD4;
+  color: white;
 }
 
 .save-button {
   padding: 0.75rem 1.5rem;
-  background: #4f46e5;
+  background: #4A70A9;
   color: white;
   border: none;
   border-radius: 8px;
@@ -71,7 +72,7 @@
 }
 
 .save-button:hover:not(:disabled) {
-  background: #4338ca;
+  background: #8FABD4;
   transform: translateY(-1px);
 }
 
@@ -101,7 +102,7 @@
   background: white;
   border-radius: 12px;
   padding: 2rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #8FABD4;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
@@ -111,7 +112,7 @@
   border-radius: 50%;
   margin: 0 auto 1.5rem;
   overflow: hidden;
-  border: 4px solid white;
+  border: 4px solid #8FABD4;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
@@ -124,7 +125,7 @@
 .avatar-initials {
   width: 100%;
   height: 100%;
-  background: linear-gradient(45deg, #4f46e5, #8b5cf6);
+  background: linear-gradient(45deg, #4A70A9, #8FABD4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -139,32 +140,32 @@
 
 .profile-info h2 {
   margin: 0 0 0.5rem;
-  color: #1f2937;
+  color: #000000;
   font-size: 1.3rem;
   font-weight: 600;
 }
 
 .profile-email {
   margin: 0 0 0.5rem;
-  color: #6b7280;
+  color: #4A70A9;
   font-size: 0.95rem;
 }
 
 .profile-role {
   display: inline-block;
   padding: 0.25rem 0.75rem;
-  background: #f3f4f6;
+  background: #EFECE3;
   border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 500;
-  color: #4f46e5;
+  color: #4A70A9;
   margin: 0 0 1rem;
 }
 
 .resume-link {
   display: inline-block;
   padding: 0.5rem 1rem;
-  background: #10b981;
+  background: #4A70A9;
   color: white;
   text-decoration: none;
   border-radius: 6px;
@@ -174,7 +175,7 @@
 }
 
 .resume-link:hover {
-  background: #059669;
+  background: #8FABD4;
 }
 
 .profile-tabs {
@@ -184,7 +185,7 @@
   background: white;
   border-radius: 12px;
   padding: 1rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #8FABD4;
 }
 
 .profile-tab {
@@ -193,7 +194,7 @@
   border: none;
   border-radius: 8px;
   text-align: left;
-  color: #6b7280;
+  color: #4A70A9;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -203,12 +204,12 @@
 }
 
 .profile-tab:hover {
-  background: #f9fafb;
-  color: #374151;
+  background: #EFECE3;
+  color: #000000;
 }
 
 .profile-tab.active {
-  background: #4f46e5;
+  background: #4A70A9;
   color: white;
 }
 
@@ -217,19 +218,19 @@
   background: white;
   border-radius: 12px;
   padding: 2rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #8FABD4;
 }
 
 .profile-section h3 {
   margin: 0 0 0.5rem;
-  color: #1f2937;
+  color: #000000;
   font-size: 1.5rem;
   font-weight: 600;
 }
 
 .section-description {
   margin: 0 0 2rem;
-  color: #6b7280;
+  color: #4A70A9;
 }
 
 .form-grid {
@@ -249,7 +250,7 @@
 .form-group label {
   display: block;
   margin-bottom: 0.5rem;
-  color: #374151;
+  color: #000000;
   font-weight: 500;
   font-size: 0.9rem;
 }
@@ -257,7 +258,7 @@
 .form-group input {
   width: 100%;
   padding: 0.75rem 1rem;
-  border: 1.5px solid #e5e7eb;
+  border: 1.5px solid #8FABD4;
   border-radius: 8px;
   font-size: 0.95rem;
   transition: all 0.2s ease;
@@ -266,19 +267,19 @@
 
 .form-group input:focus {
   outline: none;
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  border-color: #4A70A9;
+  box-shadow: 0 0 0 3px rgba(74, 112, 169, 0.1);
 }
 
 .form-group input.disabled-input {
-  background: #f9fafb;
-  color: #6b7280;
+  background: #EFECE3;
+  color: #4A70A9;
   cursor: not-allowed;
 }
 
 .input-note {
   margin: 0.25rem 0 0;
-  color: #9ca3af;
+  color: #8FABD4;
   font-size: 0.8rem;
 }
 
@@ -295,7 +296,7 @@
 
 .add-skill-btn {
   padding: 0.75rem 1.5rem;
-  background: #10b981;
+  background: #4A70A9;
   color: white;
   border: none;
   border-radius: 8px;
@@ -305,7 +306,7 @@
 }
 
 .add-skill-btn:hover {
-  background: #059669;
+  background: #8FABD4;
 }
 
 .skills-list {
@@ -319,16 +320,16 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background: #f3f4f6;
+  background: #EFECE3;
   border-radius: 20px;
   font-size: 0.9rem;
-  color: #374151;
+  color: #000000;
 }
 
 .remove-skill {
   background: none;
   border: none;
-  color: #9ca3af;
+  color: #8FABD4;
   cursor: pointer;
   font-size: 1.2rem;
   padding: 0;
@@ -341,12 +342,12 @@
 }
 
 .remove-skill:hover {
-  background: #e5e7eb;
-  color: #374151;
+  background: #8FABD4;
+  color: white;
 }
 
 .no-skills {
-  color: #9ca3af;
+  color: #8FABD4;
   font-style: italic;
   margin: 0.5rem 0;
 }
@@ -362,9 +363,9 @@
 .security-btn {
   padding: 1rem;
   background: white;
-  border: 1.5px solid #e5e7eb;
+  border: 1.5px solid #8FABD4;
   border-radius: 8px;
-  color: #374151;
+  color: #000000;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -375,36 +376,36 @@
 }
 
 .security-btn:hover {
-  background: #f9fafb;
-  border-color: #d1d5db;
+  background: #EFECE3;
+  border-color: #4A70A9;
 }
 
 .security-btn.danger {
-  color: #dc2626;
-  border-color: #fecaca;
+  color: #000000;
+  border-color: #8FABD4;
 }
 
 .security-btn.danger:hover {
-  background: #fef2f2;
-  border-color: #fca5a5;
+  background: #EFECE3;
+  border-color: #4A70A9;
 }
 
 .security-info {
   padding: 1.5rem;
-  background: #f9fafb;
+  background: #EFECE3;
   border-radius: 8px;
 }
 
 .security-info h4 {
   margin: 0 0 0.5rem;
-  color: #1f2937;
+  color: #000000;
   font-size: 1.1rem;
   font-weight: 600;
 }
 
 .security-info p {
   margin: 0 0 1rem;
-  color: #6b7280;
+  color: #4A70A9;
 }
 
 /* Responsive */
