@@ -23,7 +23,7 @@ try {
     $database = new Database();
     $db = $database->getConnection();
 
-    $query = "SELECT job_id, applied_at FROM applications WHERE candidate_id = ?";
+    $query = "SELECT job_id, applied_at, status FROM applications WHERE candidate_id = ?";
     $stmt = $db->prepare($query);
     $stmt->execute([$candidate_id]);
 

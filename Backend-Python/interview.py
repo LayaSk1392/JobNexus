@@ -1,11 +1,17 @@
 import os
+import base64
+import hashlib
+import time
 import fitz  # PyMuPDF package
 from flask import Flask, request, jsonify, render_template
 import google.generativeai as genai
 import json
 import logging
+from typing import Optional, Tuple
 from dotenv import load_dotenv
 from flask_cors import CORS
+from google.cloud import speech
+from google.cloud import texttospeech
 
 # Setup
 load_dotenv() # Load environment variables from .env file
@@ -31,10 +37,96 @@ except Exception as e:
     log.error(f"Error configuring Gemini API: {e}")
     model = None
 
+# Google Cloud Speech / TTS Configuration
+try:
+    speech_client = speech.SpeechClient()
+    tts_client = texttospeech.TextToSpeechClient()
+    log.info("--- Google Cloud Speech and TTS clients initialized ---")
+except Exception as e:
+    log.error(f"Error initializing Google Cloud clients: {e}")
+    speech_client = None
+    tts_client = None
+
 # ... rest of your code remains the same ...
 
 
 MAX_TEXT_LENGTH = 10000
+DEFAULT_TTS_MIME = "audio/mpeg"
+QUESTIONS_CACHE = {}
+QUESTIONS_CACHE_TTL_SECONDS = int(os.getenv("QUESTIONS_CACHE_TTL_SECONDS", "3600"))
+
+def _cache_get(key):
+    entry = QUESTIONS_CACHE.get(key)
+    if not entry:
+        return None
+    if time.time() - entry["ts"] > QUESTIONS_CACHE_TTL_SECONDS:
+        QUESTIONS_CACHE.pop(key, None)
+        return None
+    return entry["value"]
+
+def _cache_set(key, value):
+    QUESTIONS_CACHE[key] = {"ts": time.time(), "value": value}
+
+def synthesize_speech(text: str) -> Tuple[Optional[str], Optional[str]]:
+    """Generate TTS audio and return (base64_audio, mime_type)."""
+    if not tts_client or not text:
+        return None, None
+
+    try:
+        voice_name = os.getenv("TTS_VOICE", "en-US-Wavenet-D")
+        language_code = os.getenv("TTS_LANG", "en-US")
+
+        synthesis_input = texttospeech.SynthesisInput(text=text)
+        voice = texttospeech.VoiceSelectionParams(
+            language_code=language_code,
+            name=voice_name,
+        )
+        audio_config = texttospeech.AudioConfig(
+            audio_encoding=texttospeech.AudioEncoding.MP3
+        )
+        response = tts_client.synthesize_speech(
+            input=synthesis_input, voice=voice, audio_config=audio_config
+        )
+        audio_b64 = base64.b64encode(response.audio_content).decode("utf-8")
+        return audio_b64, DEFAULT_TTS_MIME
+    except Exception as e:
+        log.error(f"TTS error: {e}")
+        return None, None
+
+
+def transcribe_audio(
+    audio_base64: str,
+    audio_format: Optional[str] = None,
+    sample_rate_hz: Optional[int] = None,
+) -> Optional[str]:
+    """Transcribe base64 audio using Google STT."""
+    if not speech_client or not audio_base64:
+        return None
+
+    try:
+        audio_bytes = base64.b64decode(audio_base64)
+
+        encoding_map = {
+            "linear16": speech.RecognitionConfig.AudioEncoding.LINEAR16,
+            "ogg_opus": speech.RecognitionConfig.AudioEncoding.OGG_OPUS,
+            "webm_opus": speech.RecognitionConfig.AudioEncoding.WEBM_OPUS,
+            "mp3": speech.RecognitionConfig.AudioEncoding.MP3,
+        }
+        encoding = encoding_map.get((audio_format or "linear16").lower(), speech.RecognitionConfig.AudioEncoding.LINEAR16)
+
+        config = speech.RecognitionConfig(
+            encoding=encoding,
+            sample_rate_hertz=sample_rate_hz or 16000,
+            language_code=os.getenv("STT_LANG", "en-US"),
+        )
+        audio = speech.RecognitionAudio(content=audio_bytes)
+        response = speech_client.recognize(config=config, audio=audio)
+        if not response.results:
+            return ""
+        return " ".join(result.alternatives[0].transcript for result in response.results)
+    except Exception as e:
+        log.error(f"STT error: {e}")
+        return None
 
 def extract_text_from_pdf(pdf_file):
     """Extracts text from an uploaded PDF file."""
@@ -52,10 +144,31 @@ def extract_text_from_pdf(pdf_file):
         log.error(f"Error extracting text from PDF: {e}")
         return ""
 
+def extract_text_from_upload(upload):
+    """Extract text from a PDF or plain-text upload."""
+    filename = (upload.filename or "").lower()
+    mimetype = (upload.mimetype or "").lower()
+
+    if filename.endswith(".txt") or mimetype.startswith("text/"):
+        try:
+            raw = upload.read()
+            text = raw.decode("utf-8", errors="ignore")
+            if len(text) > MAX_TEXT_LENGTH:
+                log.info(f"Original text length ({len(text)}) exceeds limit. Truncating.")
+                text = text[:MAX_TEXT_LENGTH]
+            else:
+                log.info(f"Extracted text length: {len(text)} characters.")
+            return text
+        except Exception as e:
+            log.error(f"Error extracting text from text upload: {e}")
+            return ""
+
+    return extract_text_from_pdf(upload)
 
 
 
-def generate_questions(resume_text, jd_text):
+
+def generate_questions(resume_text, jd_text, num_questions: int = 5):
     """Generates interview questions using the Gemini API."""
     if not model:
         return ["Error: Gemini model not initialized. Check your API key."]
@@ -63,7 +176,7 @@ def generate_questions(resume_text, jd_text):
     log.info("Generating questions with the Gemini API...")
     prompt = f"""
     As an expert HR manager, analyze the following resume and job description.
-    Generate 5 insightful interview questions designed to probe the candidate's suitability for the role.
+    Generate {num_questions} insightful interview questions designed to probe the candidate's suitability for the role.
 
     Return your response ONLY as a single, valid JSON-formatted list of strings. Do not add any introductory text, explanations, or closing remarks. For example: ["Question 1?", "Question 2?"]
 
@@ -173,18 +286,112 @@ def start_interview():
     resume_file = request.files['resume']
     jd_file = request.files['job_description']
 
-    resume_text = extract_text_from_pdf(resume_file)
-    jd_text = extract_text_from_pdf(jd_file)
+    resume_text = extract_text_from_upload(resume_file)
+    jd_text = extract_text_from_upload(jd_file)
 
     if not resume_text or not jd_text:
-        return jsonify({'error': 'Could not extract text from one or both PDFs.'}), 500
+        return jsonify({
+            'error': 'Could not extract text from one or both uploads.',
+            'details': {
+                'resume_filename': resume_file.filename,
+                'resume_mimetype': resume_file.mimetype,
+                'resume_extracted': bool(resume_text),
+                'jd_filename': jd_file.filename,
+                'jd_mimetype': jd_file.mimetype,
+                'jd_extracted': bool(jd_text),
+            }
+        }), 500
 
-    questions = generate_questions(resume_text, jd_text)
+    questions = generate_questions(resume_text, jd_text, num_questions=5)
     
     app.config['resume_text'] = resume_text
     app.config['jd_text'] = jd_text
     
     return jsonify({'questions': questions})
+
+
+@app.route('/generate-questions', methods=['POST'])
+def generate_questions_endpoint():
+    log.info("--- Received request for /generate-questions ---")
+    data = request.get_json(silent=True) or {}
+
+    resume_text = data.get("resume_text", "")
+    jd_text = data.get("jd_text", "")
+    num_questions = int(data.get("num_questions", 20))
+    include_audio = bool(data.get("include_audio", True))
+
+    if not resume_text or not jd_text:
+        return jsonify({"success": False, "error": "resume_text and jd_text are required."}), 400
+
+    cache_key = hashlib.sha256(
+        f"{resume_text}|{jd_text}|{num_questions}|{include_audio}".encode("utf-8")
+    ).hexdigest()
+    cached = _cache_get(cache_key)
+    if cached:
+        return jsonify({"success": True, "questions": cached, "cached": True})
+
+    questions = generate_questions(resume_text, jd_text, num_questions=num_questions)
+
+    results = []
+    for q in questions:
+        audio_b64 = None
+        audio_mime = None
+        if include_audio:
+            audio_b64, audio_mime = synthesize_speech(q)
+        results.append({
+            "text": q,
+            "audio_base64": audio_b64,
+            "audio_mime": audio_mime,
+        })
+
+    _cache_set(cache_key, results)
+    return jsonify({"success": True, "questions": results, "cached": False})
+
+
+@app.route('/evaluate-answer-advanced', methods=['POST'])
+def evaluate_advanced():
+    log.info("--- Received request for /evaluate-answer-advanced ---")
+    data = request.get_json(silent=True) or {}
+
+    resume_text = data.get("resume_text", "")
+    jd_text = data.get("jd_text", "")
+    question = data.get("question", "")
+    answer_text = data.get("answer_text")
+    answer_audio_base64 = data.get("answer_audio_base64")
+    audio_format = data.get("audio_format")
+    sample_rate_hz = data.get("sample_rate_hz")
+    include_audio = bool(data.get("include_audio", True))
+
+    if not all([resume_text, jd_text, question]):
+        return jsonify({"success": False, "error": "resume_text, jd_text, and question are required."}), 400
+
+    if not answer_text and answer_audio_base64:
+        answer_text = transcribe_audio(answer_audio_base64, audio_format, sample_rate_hz)
+
+    if not answer_text:
+        return jsonify({"success": False, "error": "Answer text or audio is required."}), 400
+
+    feedback = evaluate_answer(resume_text, jd_text, question, answer_text)
+
+    feedback_audio_b64 = None
+    feedback_audio_mime = None
+    if include_audio and isinstance(feedback, dict) and not feedback.get("error"):
+        speech_text = f"Score {feedback.get('score', 0)} out of 10. "
+        strengths = feedback.get("strength", [])
+        improvements = feedback.get("improvement", [])
+        if strengths:
+            speech_text += "Strengths: " + " ".join(strengths) + " "
+        if improvements:
+            speech_text += "Improvements: " + " ".join(improvements)
+        feedback_audio_b64, feedback_audio_mime = synthesize_speech(speech_text)
+
+    return jsonify({
+        "success": True,
+        "answer_text": answer_text,
+        "feedback": feedback,
+        "feedback_audio_base64": feedback_audio_b64,
+        "feedback_audio_mime": feedback_audio_mime,
+    })
 
 @app.route('/evaluate-answer', methods=['POST'])
 def evaluate():

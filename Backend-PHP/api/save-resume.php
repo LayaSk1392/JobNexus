@@ -70,12 +70,14 @@ try {
     $checkStmt->execute();
     
     $resumeData = json_encode($data['resume_data']);
+    $title = isset($data['title']) && trim($data['title']) !== "" ? trim($data['title']) : null;
     
     if ($checkStmt->rowCount() > 0) {
         // Update existing resume
         $sql = "UPDATE resumes 
                 SET resume_data = :resume_data, 
                     template_id = :template_id,
+                    title = :title,
                     updated_at = NOW()
                 WHERE user_id = :user_id";
         
@@ -83,6 +85,7 @@ try {
         $stmt->bindParam(':user_id', $data['user_id'], PDO::PARAM_INT);
         $stmt->bindParam(':resume_data', $resumeData, PDO::PARAM_STR);
         $stmt->bindParam(':template_id', $data['template_id'], PDO::PARAM_INT);
+        $stmt->bindParam(':title', $title, PDO::PARAM_STR);
         
         if ($stmt->execute()) {
             $resumeId = $checkStmt->fetch(PDO::FETCH_ASSOC)['id'];
@@ -96,11 +99,12 @@ try {
         }
     } else {
         // Insert new resume
-        $sql = "INSERT INTO resumes (user_id, resume_data, template_id, created_at, updated_at) 
-                VALUES (:user_id, :resume_data, :template_id, NOW(), NOW())";
+        $sql = "INSERT INTO resumes (user_id, title, resume_data, template_id, created_at, updated_at) 
+                VALUES (:user_id, :title, :resume_data, :template_id, NOW(), NOW())";
         
         $stmt = $conn->prepare($sql);
         $stmt->bindParam(':user_id', $data['user_id'], PDO::PARAM_INT);
+        $stmt->bindParam(':title', $title, PDO::PARAM_STR);
         $stmt->bindParam(':resume_data', $resumeData, PDO::PARAM_STR);
         $stmt->bindParam(':template_id', $data['template_id'], PDO::PARAM_INT);
         
