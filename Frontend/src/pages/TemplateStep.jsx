@@ -1,22 +1,22 @@
 import React from "react";
-import { Check, Eye } from "lucide-react";
+import { Check } from "lucide-react";
 
 const TemplateStep = ({ data, updateData }) => {
   const templates = [
     {
       id: 1,
-      name: "Modern",
-      description: "Clean and contemporary design",
-      category: "Modern",
-      thumbnail: "https://placehold.co/200x280/3b82f6/ffffff?text=Modern",
+      name: "ATS-Friendly",
+      description: "Clean structure optimized for applicant tracking systems",
+      category: "ATS-Friendly",
+      thumbnail: "https://placehold.co/200x280/0f172a/ffffff?text=ATS-Friendly",
       premium: false
     },
     {
       id: 2,
       name: "Professional",
-      description: "Classic ATS-friendly format",
+      description: "Classic layout for corporate and business roles",
       category: "Professional",
-      thumbnail: "https://placehold.co/200x280/10b981/ffffff?text=Professional",
+      thumbnail: "https://placehold.co/200x280/1f2937/ffffff?text=Professional",
       premium: false
     },
     {
@@ -24,31 +24,15 @@ const TemplateStep = ({ data, updateData }) => {
       name: "Creative",
       description: "Unique design for creative fields",
       category: "Creative",
-      thumbnail: "https://placehold.co/200x280/8b5cf6/ffffff?text=Creative",
-      premium: true
-    },
-    {
-      id: 4,
-      name: "Minimal",
-      description: "Simple and elegant layout",
-      category: "Minimal",
-      thumbnail: "https://placehold.co/200x280/6b7280/ffffff?text=Minimal",
+      thumbnail: "https://placehold.co/200x280/7c3aed/ffffff?text=Creative",
       premium: false
     },
     {
-      id: 5,
-      name: "Executive",
-      description: "Professional with color accents",
-      category: "Executive",
-      thumbnail: "https://placehold.co/200x280/f59e0b/ffffff?text=Executive",
-      premium: true
-    },
-    {
-      id: 6,
-      name: "Academic",
-      description: "Ideal for research positions",
-      category: "Academic",
-      thumbnail: "https://placehold.co/200x280/ef4444/ffffff?text=Academic",
+      id: 4,
+      name: "Minimalist",
+      description: "Minimal styling with high readability",
+      category: "Minimalist",
+      thumbnail: "https://placehold.co/200x280/64748b/ffffff?text=Minimalist",
       premium: false
     }
   ];
@@ -57,24 +41,28 @@ const TemplateStep = ({ data, updateData }) => {
     updateData("selectedTemplate", templateId);
   };
 
-  const handlePreview = (template) => {
-    // Open template preview
-    alert(`Previewing template: ${template.name}`);
-  };
-
   return (
     <div className="step-container">
       <h2>Choose a Template</h2>
       <p className="step-description">
         Select a template that best fits your industry and style.
       </p>
-      
-      <div className="template-filters">
-        <button className="filter-btn active">All</button>
-        <button className="filter-btn">Modern</button>
-        <button className="filter-btn">Professional</button>
-        <button className="filter-btn">Creative</button>
-        <button className="filter-btn">Minimal</button>
+
+      <div className="template-controls">
+        <label className="color-label">
+          Accent Color
+          <input
+            type="color"
+            value={data.settings?.color || "#2563eb"}
+            onChange={(e) =>
+              updateData("settings", {
+                ...(data.settings || {}),
+                color: e.target.value
+              })
+            }
+          />
+          <span className="color-value">{(data.settings?.color || "#2563eb").toUpperCase()}</span>
+        </label>
       </div>
       
       <div className="templates-grid">
@@ -83,10 +71,6 @@ const TemplateStep = ({ data, updateData }) => {
             key={template.id}
             className={`template-card ${data.selectedTemplate === template.id ? 'selected' : ''}`}
           >
-            {template.premium && (
-              <div className="premium-badge">Premium</div>
-            )}
-            
             <img 
               src={template.thumbnail} 
               alt={template.name}
@@ -98,14 +82,6 @@ const TemplateStep = ({ data, updateData }) => {
               <p>{template.description}</p>
               
               <div className="template-actions">
-                <button 
-                  className="preview-btn"
-                  onClick={() => handlePreview(template)}
-                >
-                  <Eye size={16} />
-                  Preview
-                </button>
-                
                 <button 
                   className={`select-btn ${data.selectedTemplate === template.id ? 'selected' : ''}`}
                   onClick={() => handleSelectTemplate(template.id)}
@@ -148,43 +124,59 @@ const TemplateStep = ({ data, updateData }) => {
           color: #6b7280;
           margin-bottom: 2rem;
         }
-        
-        .template-filters {
+
+        .template-controls {
           display: flex;
+          align-items: center;
+          gap: 16px;
+          margin-bottom: 1.5rem;
+        }
+
+        .color-label {
+          display: inline-flex;
+          align-items: center;
           gap: 10px;
-          margin-bottom: 2rem;
-          flex-wrap: wrap;
-        }
-        
-        .filter-btn {
-          padding: 8px 16px;
-          background: #f3f4f6;
+          font-weight: 500;
+          color: #374151;
+          background: #f8fafc;
           border: 1px solid #e5e7eb;
-          border-radius: 20px;
-          color: #6b7280;
-          cursor: pointer;
-          font-size: 14px;
+          padding: 8px 12px;
+          border-radius: 10px;
         }
-        
-        .filter-btn.active {
-          background: #4f46e5;
-          color: white;
-          border-color: #4f46e5;
+
+        .color-label input[type="color"] {
+          width: 36px;
+          height: 36px;
+          border: none;
+          background: transparent;
+          padding: 0;
+          cursor: pointer;
+        }
+
+        .color-value {
+          font-size: 12px;
+          color: #6b7280;
+          letter-spacing: 0.4px;
         }
         
         .templates-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-          gap: 24px;
+          display: flex;
+          gap: 16px;
+          overflow-x: auto;
+          padding-bottom: 6px;
+          scroll-snap-type: x proximity;
           margin-bottom: 2rem;
         }
         
         .template-card {
+          min-width: 260px;
+          max-width: 260px;
           border: 2px solid #e5e7eb;
           border-radius: 12px;
           overflow: hidden;
           transition: all 0.3s;
           position: relative;
+          scroll-snap-align: start;
         }
         
         .template-card:hover {
@@ -196,19 +188,6 @@ const TemplateStep = ({ data, updateData }) => {
         .template-card.selected {
           border-color: #4f46e5;
           box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
-        }
-        
-        .premium-badge {
-          position: absolute;
-          top: 12px;
-          right: 12px;
-          background: linear-gradient(135deg, #f59e0b, #d97706);
-          color: white;
-          padding: 4px 10px;
-          border-radius: 12px;
-          font-size: 12px;
-          font-weight: 600;
-          z-index: 2;
         }
         
         .template-thumbnail {
@@ -238,27 +217,8 @@ const TemplateStep = ({ data, updateData }) => {
           gap: 10px;
         }
         
-        .preview-btn {
-          flex: 1;
-          padding: 8px 12px;
-          background: #f3f4f6;
-          border: 1px solid #e5e7eb;
-          border-radius: 6px;
-          color: #4b5563;
-          cursor: pointer;
-          font-size: 14px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 6px;
-        }
-        
-        .preview-btn:hover {
-          background: #e5e7eb;
-        }
-        
         .select-btn {
-          flex: 1;
+          width: 100%;
           padding: 8px 12px;
           background: #4f46e5;
           color: white;
@@ -298,15 +258,10 @@ const TemplateStep = ({ data, updateData }) => {
           font-style: italic;
         }
         
-        @media (max-width: 768px) {
-          .templates-grid {
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-          }
-        }
-        
         @media (max-width: 640px) {
-          .templates-grid {
-            grid-template-columns: 1fr;
+          .template-card {
+            min-width: 220px;
+            max-width: 220px;
           }
         }
       `}</style>

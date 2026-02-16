@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, Save, AlertCircle } from "lucide-react";
 import ProfileIcon from "./ProfileIcon";
 
 // Import steps
+import TemplateStep from "./TemplateStep";
 import PersonalInfoStep from "./PersonalInfoStep";
 import ExperienceStep from "./ExperienceStep";
 import EducationStep from "./EducationStep";
@@ -13,11 +14,14 @@ import SkillsStep from "./SkillsStep";
 const ResumeBuilder = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const user = JSON.parse(localStorage.getItem("user"));
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [tailorSummary, setTailorSummary] = useState("");
   const [jobTitle, setJobTitle] = useState("");
+  const [resumeId, setResumeId] = useState(null);
+  const [resumeTitle, setResumeTitle] = useState("");
   const [resumeData, setResumeData] = useState({
     personalInfo: {
       firstName: "",
@@ -27,7 +31,8 @@ const ResumeBuilder = () => {
       address: "",
       linkedIn: "",
       portfolio: "",
-      summary: ""
+      summary: "",
+      photo: ""
     },
     experience: [],
     education: [],
@@ -44,13 +49,19 @@ const ResumeBuilder = () => {
     { id: 1, title: "Personal Info", component: PersonalInfoStep },
     { id: 2, title: "Experience", component: ExperienceStep },
     { id: 3, title: "Education", component: EducationStep },
-    { id: 4, title: "Skills", component: SkillsStep }
+    { id: 4, title: "Skills", component: SkillsStep },
+    { id: 5, title: "Template", component: TemplateStep }
   ];
 
   // Validation function
   const validateCurrentStep = () => {
     setError("");
-    
+
+    if (currentStep === steps.length && !resumeData.selectedTemplate) {
+      setError("Please select a resume template to continue.");
+      return false;
+    }
+
     return true;
   };
 
@@ -91,10 +102,11 @@ const ResumeBuilder = () => {
         const fullName = `${first} ${last}`.trim();
         return fullName ? `${fullName} - Resume` : "Resume Builder - Resume";
       })();
+      const finalTitle = resumeTitle?.trim() ? resumeTitle.trim() : derivedTitle;
 
       console.log("Sending resume data:", {
         user_id: user.id,
-        title: derivedTitle,
+        title: finalTitle,
         resume_data: resumeData,
         template_id: resumeData.selectedTemplate || 1
       });
@@ -106,9 +118,10 @@ const ResumeBuilder = () => {
         },
         body: JSON.stringify({
           user_id: user.id,
-          title: derivedTitle,
+          title: finalTitle,
           resume_data: resumeData,
-          template_id: resumeData.selectedTemplate || 1
+          template_id: resumeData.selectedTemplate || 1,
+          resume_id: resumeId || undefined
         })
       });
 
@@ -146,6 +159,21 @@ const ResumeBuilder = () => {
   };
 
   const CurrentStepComponent = steps[currentStep - 1].component;
+  const handleTemplatePreview = (templateId) => {
+    navigate("/resume-preview", {
+      state: {
+        resumeData: {
+          resume_data: {
+            ...resumeData,
+            selectedTemplate: templateId
+          },
+          template_id: templateId,
+          id: resumeId,
+          title: resumeTitle || "Resume Preview"
+        }
+      }
+    });
+  };
 
   useEffect(() => {
     if (!location.state?.resumeData) return;
@@ -164,6 +192,14 @@ const ResumeBuilder = () => {
 
     if (location.state.jobTitle) {
       setJobTitle(location.state.jobTitle);
+    }
+
+    if (location.state.resumeId) {
+      setResumeId(location.state.resumeId);
+    }
+
+    if (location.state.resumeTitle) {
+      setResumeTitle(location.state.resumeTitle);
     }
   }, [location.state]);
 
@@ -224,6 +260,8 @@ const ResumeBuilder = () => {
         <div className="step-content">
           <CurrentStepComponent 
             data={resumeData}
+            user={user}
+            onPreview={handleTemplatePreview}
             updateData={(section, data) => {
               setResumeData(prev => ({
                 ...prev,
@@ -311,6 +349,10 @@ const ResumeBuilder = () => {
           align-items: center;
           margin-bottom: 3rem;
           position: relative;
+          flex-wrap: wrap;
+          row-gap: 16px;
+          overflow: visible;
+          padding: 0 8px;
         }
         
         .step-container {
@@ -355,8 +397,8 @@ const ResumeBuilder = () => {
         .step-line {
           position: absolute;
           top: 20px;
-          left: 70%;
-          right: -70%;
+          left: 55%;
+          right: -55%;
           height: 2px;
           background: #e5e7eb;
           z-index: -1;

@@ -32,7 +32,11 @@ export default function Profile() {
     collegeName: "",
     department: "",
     position: "",
-    studentCount: ""
+    studentCount: "",
+    // Security
+    currentPassword: "",
+    newPassword: "",
+    confirmNewPassword: ""
   });
 
   useEffect(() => {
@@ -76,11 +80,40 @@ export default function Profile() {
         const data = await response.json();
         if (data.success && data.profile) {
           setProfile(data.profile);
+          const rawSkills = data.profile.skills;
+          let normalizedSkills = [];
+          if (Array.isArray(rawSkills)) {
+            normalizedSkills = rawSkills;
+          } else if (typeof rawSkills === "string" && rawSkills.trim()) {
+            try {
+              const parsedSkills = JSON.parse(rawSkills);
+              normalizedSkills = Array.isArray(parsedSkills)
+                ? parsedSkills
+                : rawSkills.split(",").map((s) => s.trim()).filter(Boolean);
+            } catch {
+              normalizedSkills = rawSkills.split(",").map((s) => s.trim()).filter(Boolean);
+            }
+          }
+
           // Update form data with profile info
           setFormData(prev => ({
             ...prev,
-            ...data.profile,
-            skills: data.profile.skills || []
+            firstName: data.profile.first_name || data.profile.firstName || prev.firstName,
+            lastName: data.profile.last_name || data.profile.lastName || prev.lastName,
+            phone: data.profile.phone || "",
+            currentCompany: data.profile.current_company || data.profile.currentCompany || "",
+            experienceYears: data.profile.experience_years ?? data.profile.experienceYears ?? "",
+            preferredLocation: data.profile.preferred_location || data.profile.preferredLocation || "",
+            salaryExpectation: data.profile.salary_expectation ?? data.profile.salaryExpectation ?? "",
+            companyName: data.profile.company_name || data.profile.companyName || "",
+            companySize: data.profile.company_size || data.profile.companySize || "",
+            industry: data.profile.industry || "",
+            website: data.profile.website || "",
+            collegeName: data.profile.college_name || data.profile.collegeName || "",
+            department: data.profile.department || "",
+            position: data.profile.position || "",
+            studentCount: data.profile.student_count ?? data.profile.studentCount ?? "",
+            skills: normalizedSkills
           }));
         }
       }
@@ -116,6 +149,22 @@ export default function Profile() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const hasSecurityInput =
+      formData.currentPassword?.trim() ||
+      formData.newPassword?.trim() ||
+      formData.confirmNewPassword?.trim();
+
+    if (hasSecurityInput) {
+      if (!formData.currentPassword || !formData.newPassword || !formData.confirmNewPassword) {
+        alert("Please fill current password, new password, and confirm password.");
+        return;
+      }
+      if (formData.newPassword !== formData.confirmNewPassword) {
+        alert("New password and confirm password do not match.");
+        return;
+      }
+    }
+
     setSaving(true);
 
     try {
@@ -128,7 +177,10 @@ export default function Profile() {
         },
         body: JSON.stringify({
           userId: user.id,
-          ...formData
+          role: user.role,
+          ...formData,
+          currentPassword: hasSecurityInput ? formData.currentPassword : "",
+          newPassword: hasSecurityInput ? formData.newPassword : ""
         })
       });
 
@@ -147,6 +199,12 @@ export default function Profile() {
         };
         localStorage.setItem("user", JSON.stringify(updatedUser));
         setUser(updatedUser);
+        setFormData(prev => ({
+          ...prev,
+          currentPassword: "",
+          newPassword: "",
+          confirmNewPassword: ""
+        }));
         
         alert("Profile updated successfully!");
       } else {
@@ -401,29 +459,52 @@ export default function Profile() {
                 </div>
               </div>
             </div>
-          )}
+           )}
 
           {activeTab === "security" && (
             <div className="profile-section">
               <h3>Security Settings</h3>
-              <p className="section-description">Manage your password and account security.</p>
-              
-              <div className="security-actions">
-                <button className="security-btn">
-                  🔒 Change Password
-                </button>
-                <button className="security-btn">
-                  📧 Update Email Preferences
-                </button>
-                <button className="security-btn danger">
-                  🗑️ Delete Account
-                </button>
+              <p className="section-description">Update your password and click Save Changes.</p>
+
+              <div className="form-grid">
+                <div className="form-group full-width">
+                  <label>Current Password</label>
+                  <input
+                    type="password"
+                    name="currentPassword"
+                    value={formData.currentPassword || ""}
+                    onChange={handleInputChange}
+                    placeholder="Enter current password"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>New Password</label>
+                  <input
+                    type="password"
+                    name="newPassword"
+                    value={formData.newPassword || ""}
+                    onChange={handleInputChange}
+                    placeholder="Enter new password"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Confirm New Password</label>
+                  <input
+                    type="password"
+                    name="confirmNewPassword"
+                    value={formData.confirmNewPassword || ""}
+                    onChange={handleInputChange}
+                    placeholder="Confirm new password"
+                  />
+                </div>
               </div>
-              
+
               <div className="security-info">
                 <h4>Last Login</h4>
                 <p>Your last login was: {new Date().toLocaleDateString()}</p>
-                
+
                 <h4>Active Sessions</h4>
                 <p>You are currently logged in on this device.</p>
               </div>
@@ -434,3 +515,5 @@ export default function Profile() {
     </div>
   );
 }
+
+

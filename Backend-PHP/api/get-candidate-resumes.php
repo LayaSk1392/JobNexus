@@ -23,13 +23,37 @@ try {
     $db = $database->getConnection();
 
     $query = "
-        SELECT DISTINCT
+        SELECT 
             resume_filename,
-            applied_at AS uploaded_at
-        FROM applications
-        WHERE candidate_id = :candidate_id
-          AND resume_filename IS NOT NULL
-        ORDER BY applied_at DESC
+            MAX(uploaded_at) AS uploaded_at,
+            MAX(display_name) AS display_name,
+            MAX(source) AS source,
+            MAX(id) AS id
+        FROM (
+            SELECT 
+                id,
+                resume_filename,
+                uploaded_at,
+                display_name,
+                'upload' AS source
+            FROM candidate_resumes
+            WHERE candidate_id = :candidate_id
+
+            UNION ALL
+
+            SELECT 
+                NULL AS id,
+                resume_filename,
+                applied_at AS uploaded_at,
+                NULL AS display_name,
+                'application' AS source
+            FROM applications
+            WHERE candidate_id = :candidate_id
+              AND resume_filename IS NOT NULL
+        ) AS combined
+        WHERE resume_filename IS NOT NULL
+        GROUP BY resume_filename
+        ORDER BY uploaded_at DESC
     ";
 
     $stmt = $db->prepare($query);

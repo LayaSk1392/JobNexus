@@ -63,32 +63,36 @@ try {
         throw new Exception('Database connection failed');
     }
     
-    // Check if resume already exists for this user
-    $checkSql = "SELECT id FROM resumes WHERE user_id = :user_id";
-    $checkStmt = $conn->prepare($checkSql);
-    $checkStmt->bindParam(':user_id', $data['user_id'], PDO::PARAM_INT);
-    $checkStmt->execute();
-    
     $resumeData = json_encode($data['resume_data']);
     $title = isset($data['title']) && trim($data['title']) !== "" ? trim($data['title']) : null;
-    
-    if ($checkStmt->rowCount() > 0) {
-        // Update existing resume
+
+    $resumeId = isset($data['resume_id']) ? (int)$data['resume_id'] : null;
+
+    if ($resumeId) {
+        // Update existing resume by id
+        $checkStmt = $conn->prepare("SELECT id FROM resumes WHERE id = :id AND user_id = :user_id LIMIT 1");
+        $checkStmt->bindParam(':id', $resumeId, PDO::PARAM_INT);
+        $checkStmt->bindParam(':user_id', $data['user_id'], PDO::PARAM_INT);
+        $checkStmt->execute();
+        if ($checkStmt->rowCount() === 0) {
+            throw new Exception('Resume not found for user');
+        }
+
         $sql = "UPDATE resumes 
                 SET resume_data = :resume_data, 
                     template_id = :template_id,
                     title = :title,
                     updated_at = NOW()
-                WHERE user_id = :user_id";
+                WHERE id = :id AND user_id = :user_id";
         
         $stmt = $conn->prepare($sql);
         $stmt->bindParam(':user_id', $data['user_id'], PDO::PARAM_INT);
+        $stmt->bindParam(':id', $resumeId, PDO::PARAM_INT);
         $stmt->bindParam(':resume_data', $resumeData, PDO::PARAM_STR);
         $stmt->bindParam(':template_id', $data['template_id'], PDO::PARAM_INT);
         $stmt->bindParam(':title', $title, PDO::PARAM_STR);
         
         if ($stmt->execute()) {
-            $resumeId = $checkStmt->fetch(PDO::FETCH_ASSOC)['id'];
             $response = [
                 'success' => true,
                 'message' => 'Resume updated successfully',

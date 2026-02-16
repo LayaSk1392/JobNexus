@@ -1,14 +1,51 @@
 import React from "react";
 import { User, Mail, Phone, MapPin, Linkedin, Link, FileText } from "lucide-react";
 
-const PersonalInfoStep = ({ data, updateData }) => {
+const PersonalInfoStep = ({ data, updateData, user }) => {
   const personalInfo = data.personalInfo || {};
+  const [photoUploading, setPhotoUploading] = React.useState(false);
 
   const handleChange = (e) => {
     updateData("personalInfo", {
       ...personalInfo,
       [e.target.name]: e.target.value
     });
+  };
+
+  const handlePhotoChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      alert("Please upload an image file.");
+      return;
+    }
+    if (!user?.id) {
+      alert("Please log in again.");
+      return;
+    }
+    setPhotoUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("candidate_id", user.id);
+      formData.append("photo", file);
+      const response = await fetch("http://localhost/JobNexus/Backend-PHP/api/upload-resume-photo.php", {
+        method: "POST",
+        body: formData
+      });
+      const data = await response.json();
+      if (!data.success) {
+        throw new Error(data.message || "Failed to upload photo");
+      }
+      updateData("personalInfo", {
+        ...personalInfo,
+        photo: data.photo_url
+      });
+    } catch (error) {
+      console.error(error);
+      alert(error.message || "Failed to upload photo");
+    } finally {
+      setPhotoUploading(false);
+    }
   };
 
   return (
@@ -120,6 +157,26 @@ const PersonalInfoStep = ({ data, updateData }) => {
             placeholder="https://yourportfolio.com"
           />
         </div>
+
+        <div className="form-group">
+          <label>
+            <FileText size={16} />
+            Profile Photo (Creative Template)
+          </label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handlePhotoChange}
+          />
+          {photoUploading && (
+            <small className="helper-text">Uploading photo...</small>
+          )}
+          {personalInfo.photo && (
+            <div className="photo-preview">
+              <img src={personalInfo.photo} alt="Profile preview" />
+            </div>
+          )}
+        </div>
         
         <div className="form-group full-width">
           <label>
@@ -177,6 +234,21 @@ const PersonalInfoStep = ({ data, updateData }) => {
           border-radius: 8px;
           font-size: 14px;
           transition: all 0.2s;
+        }
+
+        .photo-preview {
+          margin-top: 10px;
+          width: 88px;
+          height: 88px;
+          border-radius: 50%;
+          overflow: hidden;
+          border: 2px solid #e5e7eb;
+        }
+
+        .photo-preview img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
         }
         
         .form-group input:focus,

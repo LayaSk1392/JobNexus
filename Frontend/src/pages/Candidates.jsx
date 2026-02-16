@@ -13,6 +13,9 @@ export default function Candidates() {
   const [selectedJob, setSelectedJob] = useState(null);
   const [resumeFile, setResumeFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [showResumeLibraryModal, setShowResumeLibraryModal] = useState(false);
+  const [resumeLibraryFile, setResumeLibraryFile] = useState(null);
+  const [resumeLibraryUploading, setResumeLibraryUploading] = useState(false);
   const [userResumes, setUserResumes] = useState([]);
   const [builderResumes, setBuilderResumes] = useState([]);
   const [matchScores, setMatchScores] = useState({});
@@ -79,6 +82,131 @@ export default function Candidates() {
       ...prev,
       [jobId]: value
     }));
+  };
+
+  const getUploadedResumeLabel = (resume) => {
+    const displayName = (resume.display_name || "").trim();
+    return displayName || resume.resume_filename;
+  };
+
+  const handleEditBuilderResume = (resume) => {
+    navigate("/resume-preview", {
+      state: {
+        resumeData: resume
+      }
+    });
+  };
+
+  const handleRenameBuilderResume = async (resume) => {
+    if (!user?.id) return;
+    const currentTitle = (resume.title || "").trim() || "Resume Builder - Resume";
+    const newTitle = window.prompt("Enter a new name for this resume:", currentTitle);
+    if (newTitle === null) return;
+    if (!newTitle.trim()) {
+      alert("Name cannot be empty.");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost/JobNexus/Backend-PHP/api/rename-builder-resume.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: user.id,
+          resume_id: resume.id,
+          new_title: newTitle.trim()
+        })
+      });
+      const data = await response.json();
+      if (!data.success) {
+        throw new Error(data.message || "Failed to rename resume");
+      }
+      fetchBuilderResumes();
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Failed to rename resume");
+    }
+  };
+
+  const handleDeleteBuilderResume = async (resume) => {
+    if (!user?.id) return;
+    const confirmed = window.confirm("Delete this resume? This cannot be undone.");
+    if (!confirmed) return;
+
+    try {
+      const response = await fetch("http://localhost/JobNexus/Backend-PHP/api/delete-builder-resume.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: user.id,
+          resume_id: resume.id
+        })
+      });
+      const data = await response.json();
+      if (!data.success) {
+        throw new Error(data.message || "Failed to delete resume");
+      }
+      fetchBuilderResumes();
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Failed to delete resume");
+    }
+  };
+
+  const handleRenameUploadedResume = async (resume) => {
+    if (!user?.id) return;
+    const currentLabel = getUploadedResumeLabel(resume);
+    const newName = window.prompt("Enter a new name for this resume:", currentLabel);
+    if (newName === null) return;
+    if (!newName.trim()) {
+      alert("Name cannot be empty.");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost/JobNexus/Backend-PHP/api/rename-resume.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          candidate_id: user.id,
+          resume_filename: resume.resume_filename,
+          new_name: newName.trim()
+        })
+      });
+      const data = await response.json();
+      if (!data.success) {
+        throw new Error(data.message || "Failed to rename resume");
+      }
+      fetchUserResumes();
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Failed to rename resume");
+    }
+  };
+
+  const handleDeleteUploadedResume = async (resume) => {
+    if (!user?.id) return;
+    const confirmed = window.confirm("Delete this resume? This cannot be undone.");
+    if (!confirmed) return;
+
+    try {
+      const response = await fetch("http://localhost/JobNexus/Backend-PHP/api/delete-resume.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          candidate_id: user.id,
+          resume_filename: resume.resume_filename
+        })
+      });
+      const data = await response.json();
+      if (!data.success) {
+        throw new Error(data.message || "Failed to delete resume");
+      }
+      fetchUserResumes();
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Failed to delete resume");
+    }
   };
 
   // Fetch uploaded resumes (from applications)
@@ -263,6 +391,22 @@ export default function Candidates() {
     }
   };
 
+  const handleLibraryFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (
+        file.type === "application/pdf" ||
+        file.type === "application/msword" ||
+        file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+        file.type === "text/plain"
+      ) {
+        setResumeLibraryFile(file);
+      } else {
+        alert("Please upload a PDF, DOC, DOCX, or TXT file");
+      }
+    }
+  };
+
   // Apply to Job with Resume
   const handleApplyWithResume = async () => {
     if (!resumeFile) {
@@ -297,6 +441,45 @@ export default function Candidates() {
       alert("Server error");
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleUploadResumeToLibrary = async () => {
+    if (!resumeLibraryFile) {
+      alert("Please upload a resume");
+      return;
+    }
+    if (!user?.id) {
+      alert("Please log in again.");
+      return;
+    }
+    setResumeLibraryUploading(true);
+    const formData = new FormData();
+    formData.append("candidate_id", user.id);
+    formData.append("resume", resumeLibraryFile);
+
+    try {
+      const response = await fetch(
+        "http://localhost/JobNexus/Backend-PHP/api/upload-resume.php",
+        {
+          method: "POST",
+          body: formData
+        }
+      );
+      const data = await response.json();
+      if (data.success) {
+        alert("Resume uploaded successfully!");
+        setShowResumeLibraryModal(false);
+        setResumeLibraryFile(null);
+        fetchUserResumes();
+      } else {
+        alert(data.message || "Upload failed");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Server error");
+    } finally {
+      setResumeLibraryUploading(false);
     }
   };
 
@@ -354,13 +537,8 @@ export default function Candidates() {
     }
   };
 
-  // Function to start interview prep (available AFTER applying)
+  // Function to start interview prep
   const startInterviewPrep = async (jobId) => {
-    // Check if user has applied for this job
-    if (!hasApplied(jobId)) {
-      alert("Please apply for this job first to access interview preparation");
-      return;
-    }
     const selection = getSelectedResumeForJob(jobId);
     if (!selection) {
       alert("Please select a resume for this job.");
@@ -567,7 +745,10 @@ export default function Candidates() {
               </h2>
               <div style={{ display: "flex", gap: "12px", marginBottom: "20px" }}>
                 <button
-                  onClick={() => navigate("/upload-resume")}
+                  onClick={() => {
+                    setResumeLibraryFile(null);
+                    setShowResumeLibraryModal(true);
+                  }}
                   style={{ 
                     flex: 1,
                     padding: "10px", 
@@ -661,7 +842,7 @@ export default function Candidates() {
                               {new Date(resume.updated_at).toLocaleDateString()}
                             </p>
                           </div>
-                          <div style={{ display: "flex", gap: "8px" }}>
+                          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", justifyContent: "flex-end" }}>
                             <button
                               onClick={() => navigate('/resume-preview', { state: { resumeData: resume } })}
                               style={{ 
@@ -676,6 +857,51 @@ export default function Candidates() {
                               }}
                             >
                               View
+                            </button>
+                            <button
+                              onClick={() => handleEditBuilderResume(resume)}
+                              style={{ 
+                                color: "#2563eb", 
+                                background: "none", 
+                                border: "none", 
+                                cursor: "pointer", 
+                                fontSize: "12px",
+                                fontWeight: "500",
+                                padding: "4px 8px",
+                                borderRadius: "4px"
+                              }}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleRenameBuilderResume(resume)}
+                              style={{ 
+                                color: "#6b7280", 
+                                background: "none", 
+                                border: "none", 
+                                cursor: "pointer", 
+                                fontSize: "12px",
+                                fontWeight: "500",
+                                padding: "4px 8px",
+                                borderRadius: "4px"
+                              }}
+                            >
+                              Rename
+                            </button>
+                            <button
+                              onClick={() => handleDeleteBuilderResume(resume)}
+                              style={{ 
+                                color: "#ef4444", 
+                                background: "none", 
+                                border: "none", 
+                                cursor: "pointer", 
+                                fontSize: "12px",
+                                fontWeight: "500",
+                                padding: "4px 8px",
+                                borderRadius: "4px"
+                              }}
+                            >
+                              Delete
                             </button>
                           </div>
                         </div>
@@ -700,14 +926,46 @@ export default function Candidates() {
                         marginBottom: "8px",
                         fontSize: "13px"
                       }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px" }}>
                           <div style={{ flex: 1 }}>
                             <p style={{ fontWeight: "500", color: "#111827", fontSize: "13px" }}>
-                              {resume.resume_filename.length > 20 ? `${resume.resume_filename.substring(0, 20)}...` : resume.resume_filename}
+                              {getUploadedResumeLabel(resume).length > 20 ? `${getUploadedResumeLabel(resume).substring(0, 20)}...` : getUploadedResumeLabel(resume)}
                             </p>
                             <p style={{ color: "#6b7280", fontSize: "11px" }}>
                               {new Date(resume.uploaded_at).toLocaleDateString()}
                             </p>
+                          </div>
+                          <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", justifyContent: "flex-end" }}>
+                            <button
+                              onClick={() => handleRenameUploadedResume(resume)}
+                              style={{ 
+                                color: "#6b7280", 
+                                background: "none", 
+                                border: "none", 
+                                cursor: "pointer", 
+                                fontSize: "11px",
+                                fontWeight: "500",
+                                padding: "4px 6px",
+                                borderRadius: "4px"
+                              }}
+                            >
+                              Rename
+                            </button>
+                            <button
+                              onClick={() => handleDeleteUploadedResume(resume)}
+                              style={{ 
+                                color: "#ef4444", 
+                                background: "none", 
+                                border: "none", 
+                                cursor: "pointer", 
+                                fontSize: "11px",
+                                fontWeight: "500",
+                                padding: "4px 6px",
+                                borderRadius: "4px"
+                              }}
+                            >
+                              Delete
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -915,7 +1173,7 @@ export default function Candidates() {
                                 <optgroup label="Uploaded">
                                   {userResumes.map((resume, index) => (
                                     <option key={`uploaded-${index}`} value={`uploaded:${resume.resume_filename}`}>
-                                      {resume.resume_filename}
+                                      {getUploadedResumeLabel(resume)}
                                     </option>
                                   ))}
                                 </optgroup>
@@ -1023,36 +1281,31 @@ export default function Candidates() {
                               {tailorLoading[job.id] ? "..." : "Tailor"}
                             </button>
 
-                            {hasAppliedToJob && (
-                              <>
-                                <button
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    startInterviewPrep(job.id);
-                                  }}
-                                  disabled={interviewLoading[job.id] || !selection}
-                                  style={{
-                                    padding: "8px 12px",
-                                    backgroundColor: "#8FABD4",
-                                    color: "white",
-                                    border: "none",
-                                    borderRadius: "6px",
-                                    cursor: interviewLoading[job.id] || !selection ? "not-allowed" : "pointer",
-                                    fontSize: "13px",
-                                    fontWeight: "500",
-                                    flex: "1 1 120px",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    gap: "6px"
-                                  }}
-                                >
-                                <MessageSquare size={14} />
-                                {interviewLoading[job.id] ? "..." : "Interview"}
-                              </button>
-
-                            </>
-                          )}
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                startInterviewPrep(job.id);
+                              }}
+                              disabled={interviewLoading[job.id] || !selection}
+                              style={{
+                                padding: "8px 12px",
+                                backgroundColor: "#8FABD4",
+                                color: "white",
+                                border: "none",
+                                borderRadius: "6px",
+                                cursor: interviewLoading[job.id] || !selection ? "not-allowed" : "pointer",
+                                fontSize: "13px",
+                                fontWeight: "500",
+                                flex: "1 1 120px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: "6px"
+                              }}
+                            >
+                              <MessageSquare size={14} />
+                              {interviewLoading[job.id] ? "..." : "Interview"}
+                            </button>
                         </div>
 
                         {/* Apply Button */}
@@ -1174,7 +1427,7 @@ export default function Candidates() {
         </div>
       </main>
 
-        {/* Upload Resume Modal */}
+        {/* Upload Resume Modal (Apply to Job) */}
         {showUploadModal && (
           <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 50 }}>
             <div style={{ backgroundColor: "white", borderRadius: "12px", padding: "24px", width: "90%", maxWidth: "500px" }}>
@@ -1233,6 +1486,73 @@ export default function Candidates() {
                 }}
               >
                 {uploading ? "Applying..." : "Submit Application"}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Upload Resume Modal (My Resumes) */}
+        {showResumeLibraryModal && (
+          <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 50 }}>
+            <div style={{ backgroundColor: "white", borderRadius: "12px", padding: "24px", width: "90%", maxWidth: "500px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", gap: "12px" }}>
+                <h3 style={{ fontSize: "18px", fontWeight: "600" }}>
+                  Upload Resume
+                </h3>
+                <button
+                  onClick={() => setShowResumeLibraryModal(false)}
+                  style={{ background: "none", border: "none", cursor: "pointer", color: "#6b7280" }}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div style={{ marginBottom: "20px" }}>
+                <label style={{ display: "block", marginBottom: "8px", fontWeight: "500" }}>Resume File</label>
+                <div style={{ border: "2px dashed #d1d5db", borderRadius: "8px", padding: "32px", textAlign: "center" }}>
+                  <Upload size={40} style={{ color: "#9ca3af", marginBottom: "12px", margin: "0 auto" }} />
+                  <p style={{ color: "#6b7280", marginBottom: "8px" }}>
+                    Click to upload resume
+                  </p>
+                  <p style={{ fontSize: "12px", color: "#9ca3af" }}>
+                    PDF, DOC, DOCX, or TXT files only
+                  </p>
+                  <input type="file" onChange={handleLibraryFileChange} style={{ display: "none" }} id="resume-library-upload" />
+                  <button
+                    onClick={() => document.getElementById('resume-library-upload').click()}
+                    style={{ marginTop: "16px", padding: "8px 16px", backgroundColor: "#f3f4f6", border: "none", borderRadius: "4px", cursor: "pointer", color: "#4b5563" }}
+                  >
+                    Browse Files
+                  </button>
+                </div>
+                {resumeLibraryFile && (
+                  <div style={{ marginTop: "16px", padding: "12px", backgroundColor: "#f0f9ff", borderRadius: "6px", border: "1px solid #7dd3fc" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span style={{ fontWeight: "500" }}>{resumeLibraryFile.name}</span>
+                      <button onClick={() => setResumeLibraryFile(null)} style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444" }}>
+                        <X size={16} />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <button
+                onClick={handleUploadResumeToLibrary}
+                disabled={resumeLibraryUploading || !resumeLibraryFile}
+                style={{ 
+                  width: "100%", 
+                  padding: "12px", 
+                  backgroundColor: resumeLibraryUploading || !resumeLibraryFile ? "#9ca3af" : "#4A70A9", 
+                  color: "white", 
+                  border: "none", 
+                  borderRadius: "6px", 
+                  cursor: resumeLibraryUploading || !resumeLibraryFile ? "not-allowed" : "pointer", 
+                  fontWeight: "500",
+                  fontSize: "16px"
+                }}
+              >
+                {resumeLibraryUploading ? "Uploading..." : "Upload Resume"}
               </button>
             </div>
           </div>
@@ -1586,62 +1906,30 @@ export default function Candidates() {
 
       {/* Action Buttons */}
       <div style={{ display: "flex", gap: "12px" }}>
-        {hasApplied(selectedMatchResult.job_id) ? (
-          <>
-            <button
-              onClick={() => {
-                setShowMatchModal(false);
-                startInterviewPrep(selectedMatchResult.job_id);
-              }}
-              style={{ 
-                flex: 1,
-                padding: "12px", 
-                backgroundColor: "#8FABD4", 
-                color: "white", 
-                border: "none", 
-                borderRadius: "6px", 
-                cursor: "pointer", 
-                fontWeight: "500",
-                fontSize: "16px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "8px"
-              }}
-            >
-              <MessageSquare size={16} />
-              Start Interview Prep
-            </button>
-          </>
-        ) : (
-          <button
-            onClick={() => {
-              const job = jobs.find(j => j.id === selectedMatchResult.job_id);
-              if (job) {
-                setShowMatchModal(false);
-                openUploadModal(job);
-              }
-            }}
-            style={{ 
-              width: "100%",
-              padding: "12px", 
-              backgroundColor: "#4A70A9", 
-              color: "white", 
-              border: "none", 
-              borderRadius: "6px", 
-              cursor: "pointer", 
-              fontWeight: "500",
-              fontSize: "16px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "8px"
-            }}
-          >
-            <Upload size={16} />
-            Apply for this Job
-          </button>
-        )}
+        <button
+          onClick={() => {
+            setShowMatchModal(false);
+            startInterviewPrep(selectedMatchResult.job_id);
+          }}
+          style={{ 
+            flex: 1,
+            padding: "12px", 
+            backgroundColor: "#8FABD4", 
+            color: "white", 
+            border: "none", 
+            borderRadius: "6px", 
+            cursor: "pointer", 
+            fontWeight: "500",
+            fontSize: "16px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "8px"
+          }}
+        >
+          <MessageSquare size={16} />
+          Start Interview Prep
+        </button>
       </div>
       
       {/* Note about reasoning */}
