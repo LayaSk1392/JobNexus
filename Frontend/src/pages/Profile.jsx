@@ -32,11 +32,15 @@ export default function Profile() {
     collegeName: "",
     department: "",
     position: "",
+<<<<<<< HEAD
     studentCount: "",
     // Security
     currentPassword: "",
     newPassword: "",
     confirmNewPassword: ""
+=======
+    studentCount: ""
+>>>>>>> upstream/main
   });
 
   useEffect(() => {
@@ -70,7 +74,11 @@ export default function Profile() {
   const loadProfileData = async (userData) => {
     try {
       const token = localStorage.getItem("token");
+<<<<<<< HEAD
       const response = await fetch(`http://localhost/api/get-profile.php?userId=${userData.id}`, {
+=======
+      const response = await fetch(`http://localhost/jobnexus/get-profile.php?userId=${userData.id}`, {
+>>>>>>> upstream/main
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -80,6 +88,7 @@ export default function Profile() {
         const data = await response.json();
         if (data.success && data.profile) {
           setProfile(data.profile);
+<<<<<<< HEAD
           const rawSkills = data.profile.skills;
           let normalizedSkills = [];
           if (Array.isArray(rawSkills)) {
@@ -114,6 +123,13 @@ export default function Profile() {
             position: data.profile.position || "",
             studentCount: data.profile.student_count ?? data.profile.studentCount ?? "",
             skills: normalizedSkills
+=======
+          // Update form data with profile info
+          setFormData(prev => ({
+            ...prev,
+            ...data.profile,
+            skills: data.profile.skills || []
+>>>>>>> upstream/main
           }));
         }
       }
@@ -149,6 +165,7 @@ export default function Profile() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+<<<<<<< HEAD
     const hasSecurityInput =
       formData.currentPassword?.trim() ||
       formData.newPassword?.trim() ||
@@ -165,11 +182,17 @@ export default function Profile() {
       }
     }
 
+=======
+>>>>>>> upstream/main
     setSaving(true);
 
     try {
       const token = localStorage.getItem("token");
+<<<<<<< HEAD
       const response = await fetch("http://localhost/api/update-profile.php", {
+=======
+      const response = await fetch("http://localhost/jobnexus/update-profile.php", {
+>>>>>>> upstream/main
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -177,10 +200,14 @@ export default function Profile() {
         },
         body: JSON.stringify({
           userId: user.id,
+<<<<<<< HEAD
           role: user.role,
           ...formData,
           currentPassword: hasSecurityInput ? formData.currentPassword : "",
           newPassword: hasSecurityInput ? formData.newPassword : ""
+=======
+          ...formData
+>>>>>>> upstream/main
         })
       });
 
@@ -199,12 +226,15 @@ export default function Profile() {
         };
         localStorage.setItem("user", JSON.stringify(updatedUser));
         setUser(updatedUser);
+<<<<<<< HEAD
         setFormData(prev => ({
           ...prev,
           currentPassword: "",
           newPassword: "",
           confirmNewPassword: ""
         }));
+=======
+>>>>>>> upstream/main
         
         alert("Profile updated successfully!");
       } else {
@@ -459,11 +489,16 @@ export default function Profile() {
                 </div>
               </div>
             </div>
+<<<<<<< HEAD
            )}
+=======
+          )}
+>>>>>>> upstream/main
 
           {activeTab === "security" && (
             <div className="profile-section">
               <h3>Security Settings</h3>
+<<<<<<< HEAD
               <p className="section-description">Update your password and click Save Changes.</p>
 
               <div className="form-grid">
@@ -505,6 +540,26 @@ export default function Profile() {
                 <h4>Last Login</h4>
                 <p>Your last login was: {new Date().toLocaleDateString()}</p>
 
+=======
+              <p className="section-description">Manage your password and account security.</p>
+              
+              <div className="security-actions">
+                <button className="security-btn">
+                  🔒 Change Password
+                </button>
+                <button className="security-btn">
+                  📧 Update Email Preferences
+                </button>
+                <button className="security-btn danger">
+                  🗑️ Delete Account
+                </button>
+              </div>
+              
+              <div className="security-info">
+                <h4>Last Login</h4>
+                <p>Your last login was: {new Date().toLocaleDateString()}</p>
+                
+>>>>>>> upstream/main
                 <h4>Active Sessions</h4>
                 <p>You are currently logged in on this device.</p>
               </div>
@@ -514,6 +569,10 @@ export default function Profile() {
       </div>
     </div>
   );
+<<<<<<< HEAD
 }
 
 
+=======
+}
+>>>>>>> upstream/main
