@@ -154,6 +154,8 @@ export default function ProfileIcon() {
               <span>My Profile</span>
             </button>
 
+<<<<<<< HEAD
+=======
             <button 
               className="dropdown-item"
               onClick={() => handleMenuItemClick("/settings")}
@@ -176,6 +178,7 @@ export default function ProfileIcon() {
               </button>
             )}
 
+>>>>>>> upstream/main
             {user?.role === "recruiter" && (
               <button 
                 className="dropdown-item"
@@ -204,4 +207,8 @@ export default function ProfileIcon() {
       )}
     </div>
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> upstream/main

@@ -10,11 +10,23 @@ export default function Home() {
 
   const handleNavigation = (path) => {
     if (loggedIn) {
+<<<<<<< HEAD
+=======
       // Check if user has access to the requested path based on their role
+>>>>>>> upstream/main
       const roleAccessMap = {
         "/candidates": ["candidate"],
         "/recruiters": ["recruiter"],
         "/collegeadmins": ["admin"],
+<<<<<<< HEAD
+        "/jobs": ["candidate", "recruiter", "admin"],
+      };
+
+      if (roleAccessMap[path]) {
+        if (!roleAccessMap[path].includes(userRole)) {
+          alert(`Access denied. This section is for ${roleAccessMap[path].join('/')} only.`);
+          
+=======
         "/jobs": ["candidate", "recruiter", "admin"], // All roles can access jobs
       };
 
@@ -25,6 +37,7 @@ export default function Home() {
           alert(`Access denied. This section is for ${roleAccessMap[path].join('/')} only.`);
           
           // Redirect to user's appropriate dashboard
+>>>>>>> upstream/main
           switch (userRole) {
             case "candidate":
               navigate("/candidates");
@@ -42,14 +55,24 @@ export default function Home() {
         }
       }
       
+<<<<<<< HEAD
+      navigate(path);
+    } else {
+=======
       // User has access, navigate to path
       navigate(path);
     } else {
       // Not logged in - navigate to login with intended path
+>>>>>>> upstream/main
       navigate("/login", { state: { intendedPath: path } });
     }
   };
 
+<<<<<<< HEAD
+  const handleRoleBasedNavigation = (role) => {
+    if (loggedIn) {
+      if (userRole === role) {
+=======
   const handleDirectNavigation = (path) => {
     navigate(path);
   };
@@ -59,6 +82,7 @@ export default function Home() {
       // If already logged in, check if user is trying to access their own role
       if (userRole === role) {
         // Navigate to their dashboard
+>>>>>>> upstream/main
         switch (role) {
           case "candidate":
             navigate("/candidates");
@@ -71,11 +95,17 @@ export default function Home() {
             break;
         }
       } else {
+<<<<<<< HEAD
+        alert(`You are currently logged in as a ${userRole}. Please logout to access ${role} features.`);
+      }
+    } else {
+=======
         // User is logged in but trying to access different role
         alert(`You are currently logged in as a ${userRole}. Please logout to access ${role} features.`);
       }
     } else {
       // Not logged in - go to login with selected role
+>>>>>>> upstream/main
       navigate("/login", { state: { role } });
     }
   };
@@ -96,6 +126,16 @@ export default function Home() {
             <p>Connecting Candidates, Recruiters, and College Admins for Smarter Careers</p>
           </div>
           
+<<<<<<< HEAD
+          {loggedIn && (
+            <div className="profile-icon-wrapper">
+              <ProfileIcon />
+            </div>
+          )}
+        </div>
+      </header>
+
+=======
           {/* Profile Icon in top right corner */}
         
       {loggedIn && (
@@ -113,6 +153,7 @@ export default function Home() {
 
       {/* No navigation bar - completely removed */}
 
+>>>>>>> upstream/main
       <main className="container">
         <div className="card-row">
           <div className="card">
@@ -183,7 +224,10 @@ export default function Home() {
           </div>
         </div>
 
+<<<<<<< HEAD
+=======
         {/* Additional info for logged-in users */}
+>>>>>>> upstream/main
         {loggedIn && (
           <div className="user-status-card" style={{
             marginTop: "2rem",
@@ -216,7 +260,11 @@ export default function Home() {
               <button 
                 onClick={() => {
                   localStorage.clear();
+<<<<<<< HEAD
+                  navigate("/login");
+=======
                   navigate("/");
+>>>>>>> upstream/main
                   window.location.reload();
                 }}
                 style={{
@@ -234,7 +282,10 @@ export default function Home() {
           </div>
         )}
 
+<<<<<<< HEAD
+=======
         {/* For non-logged in users, show login button */}
+>>>>>>> upstream/main
         {!loggedIn && (
           <div className="login-prompt" style={{
             marginTop: "3rem",
@@ -270,7 +321,11 @@ export default function Home() {
         )}
       </main>
 
+<<<<<<< HEAD
+      <footer>&copy; 2025 Job Nexus – Built for careers, powered by you!</footer>
+=======
       <footer>&copy; 2025 Job Nexus — Built for careers, powered by you!</footer>
+>>>>>>> upstream/main
     </>
   );
 }

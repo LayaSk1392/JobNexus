@@ -37,5 +37,11 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+<<<<<<< HEAD
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+=======
+>>>>>>> upstream/main
   }
 }
